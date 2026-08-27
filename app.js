@@ -185,8 +185,11 @@ function renderHome() {
       <header class="dashboard-head">
         <div><h1>Заявки</h1><span>${escapeHtml(formatToday())}</span></div>
       </header>
-      <div class="big-stat"><strong>${requests.length}</strong><span>Всего заявок</span></div>
-      <div class="stat-grid"><article><span>Согласовано</span><b>${agreed}</b></article><article><span>Черновики</span><b>${drafts}</b></article></div>
+      <div class="dashboard-stats" aria-label="Сводка по заявкам">
+        <article><span>Всего заявок</span><b>${requests.length}</b></article>
+        <article><span>Согласовано</span><b>${agreed}</b></article>
+        <article><span>Черновики</span><b>${drafts}</b></article>
+      </div>
       <section class="requests-section">
         <div class="section-title"><h2>Заявки</h2><span>${requestCountLabel(filtered.length)}</span></div>
         <div class="request-filters">
