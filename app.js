@@ -123,7 +123,6 @@ function renderHome() {
       </header>
       <div class="big-stat"><strong>1</strong><span>гость ожидается<br />завтра</span></div>
       <div class="stat-grid"><article><span>Согласовано</span><b>1</b></article><article><span>Черновики</span><b>${hasDraftData() ? 1 : 0}</b></article></div>
-      <button class="primary-action" type="button" data-action="new"><span aria-hidden="true">＋</span> Новая заявка</button>
       <section class="requests-section">
         <div class="section-title"><h2>Ближайшие заявки</h2><span>${hasDraftData() ? "2 записи" : "1 запись"}</span></div>
         <div class="request-list">
