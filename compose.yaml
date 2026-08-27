@@ -1,0 +1,24 @@
+name: chesnikova-pass
+
+services:
+  web:
+    build:
+      context: .
+    container_name: chesnikova-pass-web
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-chesnikova-pass.201-24-48-93.sslip.io}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    mem_limit: 160m
+    cpus: 0.50
+
+volumes:
+  caddy_data:
+  caddy_config:
+

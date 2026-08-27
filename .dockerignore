@@ -1,0 +1,11 @@
+.git
+.github
+.env
+data
+dist
+node_modules
+skill-observations
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
