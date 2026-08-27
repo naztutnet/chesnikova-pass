@@ -38,7 +38,7 @@ button { color: inherit; }
   display: grid;
   grid-template-columns: 44px 1fr 44px;
   align-items: center;
-  height: calc(56px + var(--safe-top));
+  height: calc(52px + var(--safe-top));
   padding: var(--safe-top) 14px 0;
   color: white;
   background: var(--shell);
@@ -51,7 +51,7 @@ button { color: inherit; }
 
 main {
   position: relative;
-  min-height: calc(100dvh - 56px - var(--safe-top));
+  min-height: calc(100dvh - 52px - var(--safe-top));
   padding: 0 14px calc(86px + var(--safe-bottom));
   border-radius: 18px 18px 0 0;
   background: var(--paper);
@@ -62,13 +62,11 @@ body[data-screen="result"] main,
 body[data-screen="free-text"] main,
 body[data-screen="text-preview"] main { padding-bottom: calc(28px + var(--safe-bottom)); }
 
-.dashboard { padding-top: 18px; }
+.dashboard { padding-top: 14px; }
 .dashboard-head { display: flex; align-items: start; justify-content: space-between; gap: 20px; }
 .overline { margin: 0 0 7px; color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .dashboard-head h1 { margin: 0; font-size: 32px; font-weight: 760; line-height: 1; letter-spacing: -.045em; }
-.dashboard-head > div > span { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; }
-.system-state { display: flex; align-items: center; gap: 7px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 10px; }
-.system-state i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.dashboard-head > div > span { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
 
 .big-stat { display: flex; align-items: end; gap: 12px; margin-top: 22px; padding: 0 2px 15px; border-bottom: 1px solid var(--line); }
 .big-stat strong { font-size: 40px; line-height: .82; letter-spacing: -.06em; }
@@ -300,7 +298,7 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
 }
 
 @media (min-width: 760px) {
-  :root { --desktop-header: 72px; }
+  :root { --desktop-header: 60px; }
 
   html, body { background: #e7e7e4; }
   body { min-height: 100dvh; }
@@ -321,7 +319,7 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
     grid-row: 1;
     grid-template-columns: 224px 48px 1fr 48px;
     height: var(--desktop-header);
-    padding: 0 22px;
+    padding: 0 18px;
   }
   .brand { grid-column: 1; justify-self: start; font-size: 13px; }
   .icon-button { grid-column: 2; grid-row: 1; }
@@ -357,7 +355,7 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
     width: 224px;
     height: calc(100dvh - var(--desktop-header));
     min-height: 0;
-    padding: 24px 14px;
+    padding: 18px 14px;
     border: 0;
     background: var(--shell);
     backdrop-filter: none;
@@ -399,19 +397,18 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
     display: grid;
     grid-template-columns: minmax(270px, 330px) minmax(360px, 1fr);
     grid-template-rows: auto auto auto auto;
-    gap: 14px 28px;
+    gap: 12px 28px;
     max-width: 1080px;
     margin: 0 auto;
-    padding-top: 30px;
+    padding-top: 18px;
   }
-  .dashboard-head { grid-column: 1 / -1; margin-bottom: 8px; }
+  .dashboard-head { grid-column: 1 / -1; margin-bottom: 2px; }
   .dashboard-head h1 { font-size: 42px; }
   .dashboard-head > div > span { font-size: 12px; }
-  .system-state { font-size: 11px; }
   .big-stat {
     grid-column: 1;
     grid-row: 2;
-    min-height: 118px;
+    min-height: 104px;
     margin-top: 0;
     padding: 22px;
     border: 0;
@@ -449,8 +446,8 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
   .parse-preview-screen,
   .profile-screen,
   .help-screen,
-  .result-screen { padding-top: 32px; }
-  .wizard-head { padding-top: 28px; }
+  .result-screen { padding-top: 22px; }
+  .wizard-head { padding-top: 20px; }
   .wizard-head h1,
   .help-screen h1,
   .result-screen h1,
@@ -528,7 +525,6 @@ main { border-radius: 0; background: #ffffff; }
 .overline { font-size: 11px; }
 .dashboard-head h1 { font-size: 36px; font-weight: 500; }
 .dashboard-head > div > span { font-size: 13px; }
-.system-state { font-size: 12px; }
 .big-stat { border-bottom-color: var(--line); }
 .big-stat strong { font-size: 43px; font-weight: 400 !important; }
 .big-stat span { font-size: 14px; }

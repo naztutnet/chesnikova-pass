@@ -118,8 +118,7 @@ function renderHome() {
   app.innerHTML = `
     <section class="dashboard">
       <header class="dashboard-head">
-        <div><p class="overline">Рабочий стол</p><h1>Заявки</h1><span>${escapeHtml(formatToday())}</span></div>
-        <div class="system-state"><i></i><span>Демо</span></div>
+        <div><h1>Заявки</h1><span>${escapeHtml(formatToday())}</span></div>
       </header>
       <div class="big-stat"><strong>1</strong><span>гость ожидается<br />завтра</span></div>
       <div class="stat-grid"><article><span>Согласовано</span><b>1</b></article><article><span>Черновики</span><b>${hasDraftData() ? 1 : 0}</b></article></div>
