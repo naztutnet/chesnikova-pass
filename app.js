@@ -141,7 +141,7 @@ function renderNewRequest() {
     </button>` : "";
   app.innerHTML = `
     <section class="new-request-screen">
-      <p class="overline">Новая заявка</p><h1>Как удобнее<br />начать?</h1>
+      <p class="overline">Новая заявка</p><h1>Как удобнее начать?</h1>
       <p class="screen-lead">Оба способа создают один и тот же редактируемый черновик разового пропуска.</p>
       <div class="type-list">
         ${draftOption}
@@ -161,7 +161,7 @@ function renderFreeText() {
   app.innerHTML = `
     <section class="free-text-screen">
       <p class="overline">Новая заявка · быстрый ввод</p>
-      <h1>Опишите<br />визит</h1>
+      <h1>Опишите визит</h1>
       <p class="screen-lead">Напишите дату, место и гостей в свободной форме. ФИО лучше указывать в порядке: фамилия, имя, отчество.</p>
       <div class="free-text-card">
         <label for="freeText">Текст заявки</label>
@@ -184,7 +184,7 @@ function renderTextPreview() {
   app.innerHTML = `
     <section class="parse-preview-screen">
       <p class="overline">Черновик распознан</p>
-      <h1>Вот что<br />я понял</h1>
+      <h1>Вот что я понял</h1>
       <p class="screen-lead">Это ещё не заявка в PassOffice. Дальше каждое поле можно исправить вручную.</p>
       <section class="parse-card" aria-label="Распознанные данные">
         ${parseRow("Дата", draft.date ? formatDate(draft.date, true) : "Не найдена", Boolean(draft.date))}
@@ -253,7 +253,7 @@ function renderReview() {
 }
 
 function renderResult() {
-  app.innerHTML = `<section class="result-screen"><div class="result-mark" aria-hidden="true">✓</div><p class="overline">Демо · не отправлено</p><h1>Заявка<br />собрана</h1><p>Все этапы пройдены. После подключения PassOffice здесь появятся проверенный номер заявки и её фактический статус.</p><article class="result-card"><span>${escapeHtml(formatDate(state.draft.date, true))}</span><b>${escapeHtml(visitorName() || "Новый посетитель")}</b><small>${escapeHtml(state.draft.room || "Комната или павильон")} · ${guestCountLabel(state.draft.visitors.length)}</small></article><button class="button button-primary" type="button" data-action="home">Вернуться к заявкам</button></section>`;
+  app.innerHTML = `<section class="result-screen"><div class="result-mark" aria-hidden="true">✓</div><p class="overline">Демо · не отправлено</p><h1>Заявка собрана</h1><p>Все этапы пройдены. После подключения PassOffice здесь появятся проверенный номер заявки и её фактический статус.</p><article class="result-card"><span>${escapeHtml(formatDate(state.draft.date, true))}</span><b>${escapeHtml(visitorName() || "Новый посетитель")}</b><small>${escapeHtml(state.draft.room || "Комната или павильон")} · ${guestCountLabel(state.draft.visitors.length)}</small></article><button class="button button-primary" type="button" data-action="home">Вернуться к заявкам</button></section>`;
 }
 
 function renderProfile() {

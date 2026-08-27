@@ -528,7 +528,7 @@ body button,
 main { border-radius: 0; background: #ffffff; }
 
 .overline { font-size: 11px; }
-.dashboard-head h1 { font-size: 36px; font-weight: 500; }
+.dashboard-head h1 { font-size: 32px; font-weight: 500; }
 .dashboard-head > div > span { font-size: 13px; }
 .big-stat { border-bottom-color: var(--line); }
 .big-stat strong { font-size: 43px; font-weight: 400 !important; }
@@ -549,7 +549,7 @@ main { border-radius: 0; background: #ffffff; }
 .button { border: 1px solid var(--ink); font-size: 15px; }
 .button-secondary { border-color: var(--line); }
 
-.section-title h2 { font-size: 19px; }
+.section-title h2 { font-size: 17px; }
 .section-title span { font-size: 12px; }
 .request-date { font-size: 12px; }
 .request-person b { font-size: 16px; }
@@ -565,7 +565,14 @@ main { border-radius: 0; background: #ffffff; }
 .new-request-screen h1,
 .profile-screen > h1,
 .free-text-screen h1,
-.parse-preview-screen h1 { font-size: clamp(36px, 9vw, 44px); font-weight: 500; }
+.parse-preview-screen h1 {
+  max-width: 100%;
+  font-size: clamp(25px, 7vw, 30px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -.04em;
+  white-space: nowrap;
+}
 .wizard-head > p { font-size: 14px; }
 .workflow-nav button span { font-size: 10px; }
 .workflow-nav button b { font-size: 12px; }
@@ -607,7 +614,7 @@ input, textarea { min-height: 50px; border-color: var(--line); background: #ffff
 .parse-visitors > div b { font-size: 14px; }
 .parse-missing, .parse-ready { border: 1px solid var(--line); background: #ffffff; font-size: 12px; }
 .visitor-head span { font-size: 10px; }
-.visitor-head h2 { font-size: 16px; }
+.visitor-head h2 { font-size: 15px; }
 .remove-visitor, .limit-note { font-size: 11px; }
 .add-visitor { font-size: 14px; }
 
@@ -616,7 +623,7 @@ input, textarea { min-height: 50px; border-color: var(--line); background: #ffff
 .summary-head b { font-size: 15px; }
 .summary-row { font-size: 14px; }
 .review-section > header span { font-size: 10px; }
-.review-section > header h2 { font-size: 16px; }
+.review-section > header h2 { font-size: 15px; }
 .review-section > header button { font-size: 12px; }
 .review-visitors article > span { font-size: 11px; }
 .review-visitors b { font-size: 14px; }
@@ -661,7 +668,7 @@ input, textarea { min-height: 50px; border-color: var(--line); background: #ffff
   .tab.active { border: 1px solid var(--ink); color: var(--ink); background: #ffffff; }
   .tab-create, .tab-create.active { color: var(--ink); background: #ffffff; }
   .dashboard { grid-template-rows: auto auto auto; }
-  .dashboard-head h1 { font-size: 46px; }
+  .dashboard-head h1 { font-size: 38px; }
   .big-stat {
     min-height: 118px;
     border: 1px solid var(--line);
@@ -682,7 +689,7 @@ input, textarea { min-height: 50px; border-color: var(--line); background: #ffff
   .new-request-screen h1,
   .profile-screen > h1,
   .free-text-screen h1,
-  .parse-preview-screen h1 { font-size: 50px; }
+  .parse-preview-screen h1 { font-size: 38px; }
   .screen-lead, .wizard-head > p { font-size: 16px; }
   .workflow-nav button b { font-size: 13px; }
   .type-card b { font-size: 18px; }
