@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Amedia Pass — Pinterest research</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; color: #181818; background: #f4f4f2; font-family: Arial, sans-serif; }
+      header { display: grid; grid-template-columns: minmax(0,1fr) minmax(260px,520px); align-items: end; gap: 36px; padding: 44px clamp(20px,5vw,72px) 28px; border-bottom: 1px solid #cfcfca; background: white; }
+      .kicker { margin: 0 0 10px; color: #b21d22; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+      h1 { margin: 0; font: 500 clamp(38px,6vw,74px)/.95 Georgia,serif; letter-spacing: -.055em; }
+      .intro { margin: 0; color: #65655f; font-size: 14px; line-height: 1.55; }
+      .intro a { color: #b21d22; }
+      main { columns: 5 250px; column-gap: 18px; padding: 26px clamp(16px,3vw,42px) 110px; }
+      figure { position: relative; break-inside: avoid; margin: 0 0 18px; overflow: hidden; border-radius: 18px; background: #ddd; box-shadow: 0 6px 20px rgba(0,0,0,.08); cursor: pointer; }
+      figure img { display: block; width: 100%; min-height: 180px; object-fit: cover; }
+      figure figcaption { position: absolute; inset: auto 10px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 11px; border-radius: 10px; color: white; background: rgba(15,15,15,.78); font-size: 11px; backdrop-filter: blur(10px); }
+      figure b { display: grid; place-items: center; min-width: 25px; height: 25px; border: 1px solid rgba(255,255,255,.7); border-radius: 50%; }
+      figure.selected { outline: 5px solid #e60023; outline-offset: 3px; }
+      figure.selected figcaption { background: #e60023; }
+      figure:focus-visible { outline: 4px solid #175cff; outline-offset: 3px; }
+      .selection { position: fixed; z-index: 10; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(680px,calc(100% - 28px)); padding: 14px 18px; border-radius: 999px; color: white; background: rgba(18,18,18,.92); box-shadow: 0 8px 28px rgba(0,0,0,.2); text-align: center; font-size: 13px; backdrop-filter: blur(14px); }
+      @media (max-width: 720px) { header { display: block; padding: 28px 20px 22px; } h1 { font-size: 44px; }.intro { margin-top: 18px; } main { columns: 2 145px; padding: 18px 12px 100px; column-gap: 12px; } figure { margin-bottom: 12px; border-radius: 13px; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div><p class="kicker">Pinterest · visual research</p><h1>Что здесь<br />отзывается?</h1></div>
+      <p class="intro">Это реальные изображения, загруженные поиском Pinterest по запросу <b>mobile app form UI minimal</b>. Нажмите на любые 2–4 референса, которые ближе по вкусу. <a href="https://www.pinterest.com/search/pins/?q=mobile%20app%20form%20ui%20minimal" target="_blank" rel="noreferrer">Открыть исходный поиск</a>.</p>
+    </header>
+    <main id="moodboard">
+      <figure tabindex="0" data-ref="1"><img src="https://i.pinimg.com/736x/32/f7/b6/32f7b69039847113997f4d061123dc26.jpg" alt="Pinterest reference 1" /><figcaption><span>Минималистичная форма</span><b>1</b></figcaption></figure>
+      <figure tabindex="0" data-ref="2"><img src="https://i.pinimg.com/736x/6a/fa/d2/6afad2f0a1bfb274d3e0c29e5d42ec58.jpg" alt="Pinterest reference 2" /><figcaption><span>Типографический акцент</span><b>2</b></figcaption></figure>
+      <figure tabindex="0" data-ref="3"><img src="https://i.pinimg.com/736x/89/05/05/890505619c3c4bb14de32694a7174387.jpg" alt="Pinterest reference 3" /><figcaption><span>Воздух и один CTA</span><b>3</b></figcaption></figure>
+      <figure tabindex="0" data-ref="4"><img src="https://i.pinimg.com/736x/a7/1d/c7/a71dc700a371144a676689d56cde2742.jpg" alt="Pinterest reference 4" /><figcaption><span>Нейтральный iOS</span><b>4</b></figcaption></figure>
+      <figure tabindex="0" data-ref="5"><img src="https://i.pinimg.com/736x/77/c0/fc/77c0fcd44dda2faff8f38258f6d76273.jpg" alt="Pinterest reference 5" /><figcaption><span>Монохромный flow</span><b>5</b></figcaption></figure>
+      <figure tabindex="0" data-ref="6"><img src="https://i.pinimg.com/736x/59/2e/77/592e772d5daf854de7f7dd27e6725aa2.jpg" alt="Pinterest reference 6" /><figcaption><span>Компактная форма</span><b>6</b></figcaption></figure>
+      <figure tabindex="0" data-ref="7"><img src="https://i.pinimg.com/736x/84/db/d0/84dbd039ce96266d5d1b273aeb9f3bb3.jpg" alt="Pinterest reference 7" /><figcaption><span>Спокойная сетка</span><b>7</b></figcaption></figure>
+      <figure tabindex="0" data-ref="8"><img src="https://i.pinimg.com/736x/70/d5/85/70d585bb92220ab85349e8301fd27a24.jpg" alt="Pinterest reference 8" /><figcaption><span>Карточный layout</span><b>8</b></figcaption></figure>
+      <figure tabindex="0" data-ref="9"><img src="https://i.pinimg.com/736x/b8/1e/c5/b81ec59eabf0fdc3d0db21875a5c5539.jpg" alt="Pinterest reference 9" /><figcaption><span>Тёмная утилитарность</span><b>9</b></figcaption></figure>
+      <figure tabindex="0" data-ref="10"><img src="https://i.pinimg.com/736x/8b/68/49/8b684914835f9a9774558350bff234ee.jpg" alt="Pinterest reference 10" /><figcaption><span>Мягкий минимализм</span><b>10</b></figcaption></figure>
+      <figure tabindex="0" data-ref="11"><img src="https://i.pinimg.com/736x/5c/a9/91/5ca9919f64fa36eea33252b8b2720d8d.jpg" alt="Pinterest reference 11" /><figcaption><span>Продуктовая строгость</span><b>11</b></figcaption></figure>
+      <figure tabindex="0" data-ref="12"><img src="https://i.pinimg.com/736x/46/c5/59/46c5592a9c78ee95504e28bfbcf7f3fa.jpg" alt="Pinterest reference 12" /><figcaption><span>Чистый onboarding</span><b>12</b></figcaption></figure>
+    </main>
+    <div class="selection" id="selection">Выберите 2–4 картинки и пришлите номера</div>
+    <script>
+      const selected = new Set(JSON.parse(localStorage.getItem("amedia-pinterest-refs") || "[]"));
+      const sync = () => {
+        document.querySelectorAll("figure").forEach((item) => item.classList.toggle("selected", selected.has(item.dataset.ref)));
+        localStorage.setItem("amedia-pinterest-refs", JSON.stringify([...selected]));
+        document.querySelector("#selection").textContent = selected.size ? `Выбрано: ${[...selected].join(", ")}. Пришлите эти номера в чат.` : "Выберите 2–4 картинки и пришлите номера";
+      };
+      const toggle = (item) => { if (selected.has(item.dataset.ref)) selected.delete(item.dataset.ref); else selected.add(item.dataset.ref); sync(); };
+      document.addEventListener("click", (event) => { const item = event.target.closest("figure"); if (item) toggle(item); });
+      document.addEventListener("keydown", (event) => { const item = event.target.closest("figure"); if (item && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); toggle(item); } });
+      sync();
+    </script>
+  </body>
+</html>

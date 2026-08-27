@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Amedia Pass — Round 2</title>
+    <link rel="stylesheet" href="./variants-2.css" />
+  </head>
+  <body>
+    <header class="board-head">
+      <div><p>Round 2 · refs 1 + 8 + 9</p><h1>Тише. Чище.<br />По делу.</h1></div>
+      <div class="board-controls">
+        <span>Можно выбрать несколько архитектур, а цвет оценить отдельно.</span>
+        <div class="palette" aria-label="Цветовой акцент">
+          <button class="active" type="button" data-accent="#e33b2f" aria-label="Киноварь" title="Киноварь"><i style="--swatch:#e33b2f"></i></button>
+          <button type="button" data-accent="#245dff" aria-label="Кобальт" title="Кобальт"><i style="--swatch:#245dff"></i></button>
+          <button type="button" data-accent="#32a36b" aria-label="Шалфей" title="Шалфей"><i style="--swatch:#32a36b"></i></button>
+          <button type="button" data-accent="#e39a17" aria-label="Янтарь" title="Янтарь"><i style="--swatch:#e39a17"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <main class="board">
+      <section class="variant variant-a" data-variant="A">
+        <div class="variant-title"><b>A</b><span>Compact sheet</span></div>
+        <article class="phone">
+          <div class="handle"></div>
+          <header><h2>Новый пропуск</h2><button type="button" aria-label="Закрыть">×</button></header>
+          <div class="segment"><button class="active" type="button">Разовый</button><button type="button">Групповой</button></div>
+          <form>
+            <label><span>Дата посещения</span><input value="27 августа 2026" readonly /></label>
+            <label><span>Комната / павильон</span><input value="БП — 10" readonly /></label>
+            <label><span>Организация</span><input placeholder="Необязательно" readonly /></label>
+          </form>
+          <div class="quiet-info"><span>1</span><p><b>Следующий шаг</b><br />ФИО и дата рождения гостя</p></div>
+          <div class="bottom-actions"><button type="button">Очистить</button><button class="primary" type="button">Продолжить</button></div>
+        </article>
+        <button class="choose" data-choose="A" type="button">Выбрать A</button>
+      </section>
+
+      <section class="variant variant-b" data-variant="B">
+        <div class="variant-title"><b>B</b><span>Dark sequence</span></div>
+        <article class="phone dark">
+          <header><button type="button" aria-label="Назад">←</button><span>AMEDIA PASS</span><i>1 / 3</i></header>
+          <div class="progress"><i></i></div>
+          <div class="question"><small>МЕСТО ВСТРЕЧИ</small><h2>Куда направить<br />гостя?</h2><p>Укажите дату и точку назначения. Остальное спросим дальше.</p></div>
+          <form>
+            <label><span>Дата</span><input value="27.08.2026" readonly /></label>
+            <label><span>Павильон / комната</span><input value="БП — 10" readonly /></label>
+            <label><span>Организация</span><input placeholder="Можно пропустить" readonly /></label>
+          </form>
+          <button class="primary" type="button">Данные гостя <span>→</span></button>
+        </article>
+        <button class="choose" data-choose="B" type="button">Выбрать B</button>
+      </section>
+
+      <section class="variant variant-c" data-variant="C">
+        <div class="variant-title"><b>C</b><span>Quiet dashboard</span></div>
+        <article class="phone">
+          <header><div><h2>Заявки</h2><p>Среда, 26 августа</p></div><button class="avatar" type="button">АН</button></header>
+          <div class="signal-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="big-stat"><strong>3</strong><span>гостя<br />ожидаются завтра</span></div>
+          <div class="stat-grid"><article><span>Согласовано</span><b>2</b></article><article><span>Черновики</span><b>1</b></article></div>
+          <div class="next-pass"><span>Ближайший</span><div><b>Елена Воронова</b><small>27 авг · БП — 10</small></div><i>→</i></div>
+          <button class="primary" type="button"><span>＋</span> Новый пропуск</button>
+          <nav><span class="active">Заявки</span><span>Новая</span><span>Помощь</span></nav>
+        </article>
+        <button class="choose" data-choose="C" type="button">Выбрать C</button>
+      </section>
+
+      <section class="variant variant-d" data-variant="D">
+        <div class="variant-title"><b>D</b><span>Numbered flow</span></div>
+        <article class="phone">
+          <header><button type="button" aria-label="Назад">←</button><span>Новая заявка</span><button type="button" aria-label="Закрыть">×</button></header>
+          <div class="step-number"><strong>01</strong><span>из 03</span></div>
+          <div class="question"><h2>Когда и куда?</h2><p>Основные данные для бюро пропусков</p></div>
+          <form>
+            <label><span>Дата</span><input value="27 августа 2026" readonly /><i>↗</i></label>
+            <label><span>Точка назначения</span><input value="БП — 10" readonly /><i>↗</i></label>
+            <label><span>Организация</span><input placeholder="Не выбрана" readonly /><i>＋</i></label>
+          </form>
+          <div class="bottom-actions"><small>Черновик сохранён</small><button class="primary" type="button">Далее →</button></div>
+        </article>
+        <button class="choose" data-choose="D" type="button">Выбрать D</button>
+      </section>
+
+      <section class="variant variant-e" data-variant="E">
+        <div class="variant-title"><b>E</b><span>Dark shell</span></div>
+        <article class="phone dark">
+          <header><span>AP</span><div><b>AMEDIA PASS</b><small>Бюро пропусков онлайн</small></div><button type="button">•••</button></header>
+          <div class="shell-head"><small>НОВАЯ ЗАЯВКА · 1/3</small><h2>Место<br />встречи</h2></div>
+          <div class="light-sheet">
+            <div class="sheet-head"><b>Основные данные</b><span>Все поля, кроме организации, обязательны</span></div>
+            <label><span>Дата посещения</span><input value="27 августа 2026" readonly /></label>
+            <label><span>Комната / павильон</span><input value="БП — 10" readonly /></label>
+            <label><span>Организация</span><input placeholder="Необязательно" readonly /></label>
+            <button class="primary" type="button">Продолжить <span>→</span></button>
+          </div>
+        </article>
+        <button class="choose" data-choose="E" type="button">Выбрать E</button>
+      </section>
+    </main>
+
+    <footer id="selection">Выберите один или несколько вариантов</footer>
+    <script src="./variants-2.js"></script>
+  </body>
+</html>

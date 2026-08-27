@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#101112" />
+    <meta name="description" content="CHESNIKOVA PASS — удобное оформление гостевых пропусков с телефона и компьютера." />
+    <title>CHESNIKOVA PASS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css?v=5" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <button class="icon-button" id="backButton" type="button" aria-label="Назад" hidden>
+          <span aria-hidden="true">←</span>
+        </button>
+        <a class="brand" href="#" id="brandLink" aria-label="CHESNIKOVA PASS — на главную">CHESNIKOVA PASS</a>
+        <button class="avatar" type="button" aria-label="Открыть профиль">АС</button>
+      </header>
+
+      <main id="app" aria-live="polite"></main>
+
+      <nav class="tabbar" id="tabbar" aria-label="Основная навигация">
+        <button class="tab active" type="button" data-tab="home">
+          <span class="tab-icon" aria-hidden="true">▤</span><span>Заявки</span>
+        </button>
+        <button class="tab tab-create" type="button" data-action="new" data-tab="new">
+          <span aria-hidden="true">＋</span><span>Новая</span>
+        </button>
+        <button class="tab" type="button" data-tab="profile">
+          <span class="tab-icon" aria-hidden="true">◎</span><span>Профиль</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+.env
+node_modules/
+dist/
+data/
+graphify-out/
+skill-observations/
+.DS_Store
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal

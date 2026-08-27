@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Amedia Pass — 5 направлений</title>
+    <link rel="stylesheet" href="./variants.css" />
+  </head>
+  <body>
+    <header class="board-head">
+      <div>
+        <p class="board-kicker">Amedia Pass · дизайн-разведка</p>
+        <h1>Пять разных характеров</h1>
+      </div>
+      <p class="board-note">Один сценарий, пять визуальных систем. На узком экране листайте карточки вбок.</p>
+    </header>
+
+    <main class="board" id="board">
+      <section class="concept concept-a" data-variant="A">
+        <div class="concept-label"><b>A</b><span>Кинохлопушка</span></div>
+        <article class="phone">
+          <header class="appbar"><span class="back">←</span><span class="wordmark">AMEDIA <i>PASS</i></span><span class="timecode">09:41:07</span></header>
+          <div class="slate"><p>СЦЕНА 01 · ПРОПУСК</p><h2>Куда направить<br />гостя?</h2><div class="slate-stripes" aria-hidden="true"></div></div>
+          <div class="take-line"><span>Дубль 1 из 3</span><b>ЗАВТРА</b></div>
+          <form class="form-stack">
+            <label><span>Дата визита</span><input type="text" value="27 августа 2026" readonly /></label>
+            <label><span>Павильон / комната</span><input type="text" value="БП — 10" readonly /></label>
+            <label><span>Организация</span><input type="text" placeholder="Необязательно" readonly /></label>
+          </form>
+          <button class="primary" type="button">Далее: данные гостя <span>→</span></button>
+          <nav class="mini-nav"><span class="active">Новая</span><span>Заявки</span><span>Помощь</span></nav>
+        </article>
+        <button class="choose" type="button" data-choose="A">Выбрать A</button>
+      </section>
+
+      <section class="concept concept-b" data-variant="B">
+        <div class="concept-label"><b>B</b><span>Пропуск-билет</span></div>
+        <article class="phone">
+          <header class="appbar"><span class="crest">A</span><span><b>AMEDIA</b><small>гостевой вход</small></span><button type="button" aria-label="Профиль">АН</button></header>
+          <div class="welcome"><p>Новая заявка</p><h2>Оформим гостя<br />без звонков в бюро</h2></div>
+          <div class="ticket-form">
+            <div class="ticket-stub"><span>VISIT</span><b>27</b><small>АВГ</small></div>
+            <div class="ticket-main">
+              <div class="step-dots"><i class="on"></i><i></i><i></i><span>1 / 3</span></div>
+              <label><span>Куда</span><input type="text" value="БП — 10" readonly /></label>
+              <label><span>Организация</span><input type="text" placeholder="Можно не указывать" readonly /></label>
+              <div class="tear" aria-hidden="true"></div>
+              <p class="ticket-help">Следом попросим ФИО гостя</p>
+            </div>
+          </div>
+          <button class="primary" type="button">Продолжить</button>
+          <p class="privacy">Черновик останется только у вас</p>
+        </article>
+        <button class="choose" type="button" data-choose="B">Выбрать B</button>
+      </section>
+
+      <section class="concept concept-c" data-variant="C">
+        <div class="concept-label"><b>C</b><span>Навигатор павильонов</span></div>
+        <article class="phone">
+          <header class="appbar"><span class="map-logo">A/</span><span class="location">Амедиа<br /><small>территория студии</small></span><button type="button" aria-label="Меню">•••</button></header>
+          <div class="map-zone" aria-hidden="true"><i class="road r1"></i><i class="road r2"></i><span class="pin p1">4</span><span class="pin p2">БП</span><span class="gate">КПП</span><div class="route"></div></div>
+          <div class="route-card">
+            <div class="route-title"><span>Шаг 1 из 3</span><b>Маршрут гостя</b></div>
+            <label><span>Дата</span><input type="text" value="27 августа, четверг" readonly /></label>
+            <label><span>Точка назначения</span><input type="text" value="Большой павильон · комната 10" readonly /></label>
+            <label><span>Организация</span><input type="text" placeholder="Найти в справочнике" readonly /></label>
+            <button class="primary" type="button">Добавить гостя <span>↗</span></button>
+          </div>
+        </article>
+        <button class="choose" type="button" data-choose="C">Выбрать C</button>
+      </section>
+
+      <section class="concept concept-d" data-variant="D">
+        <div class="concept-label"><b>D</b><span>Московский модернизм</span></div>
+        <article class="phone">
+          <header class="appbar"><span class="monogram">АМ</span><span>Бюро пропусков</span><button type="button" aria-label="Закрыть">×</button></header>
+          <div class="editorial-head"><p>Разовый визит · 01</p><h2>Гость приезжает.<br />Мы подготовим вход.</h2><span class="big-date">27<span>/08</span></span></div>
+          <form class="editorial-form">
+            <label><span>Дата посещения</span><input type="text" value="27 августа 2026" readonly /></label>
+            <label><span>Комната или павильон</span><input type="text" value="БП — 10" readonly /></label>
+            <label><span>Организация</span><input type="text" placeholder="Не указана" readonly /></label>
+          </form>
+          <div class="editorial-action"><p>Дальше — имя и дата рождения гостя</p><button class="primary" type="button">К гостю <span>→</span></button></div>
+        </article>
+        <button class="choose" type="button" data-choose="D">Выбрать D</button>
+      </section>
+
+      <section class="concept concept-e" data-variant="E">
+        <div class="concept-label"><b>E</b><span>Рация диспетчера</span></div>
+        <article class="phone">
+          <header class="appbar"><span class="signal">▥</span><span><b>PASS CONTROL</b><small>AMEDIA · ONLINE</small></span><span class="live">● LIVE</span></header>
+          <div class="console-head"><span>НОВАЯ ЗАЯВКА / РАЗОВЫЙ</span><h2>Назначьте точку<br />встречи</h2></div>
+          <div class="console-steps"><span class="active">01 МЕСТО</span><span>02 ГОСТЬ</span><span>03 ПРОВЕРКА</span></div>
+          <form class="console-form">
+            <label><span>VISIT_DATE</span><input type="text" value="27.08.2026" readonly /></label>
+            <label><span>DESTINATION</span><input type="text" value="БП / 10" readonly /></label>
+            <label><span>ORGANIZATION</span><input type="text" placeholder="OPTIONAL" readonly /></label>
+          </form>
+          <div class="console-status"><i></i><span>Все обязательные данные заполнены</span></div>
+          <button class="primary" type="button">ПРОДОЛЖИТЬ <span>→</span></button>
+        </article>
+        <button class="choose" type="button" data-choose="E">Выбрать E</button>
+      </section>
+    </main>
+
+    <footer class="selection" id="selection">Нажмите «Выбрать» под понравившимся вариантом</footer>
+    <script src="./variants.js"></script>
+  </body>
+</html>
