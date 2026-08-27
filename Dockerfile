@@ -16,5 +16,4 @@ COPY --from=build /app/dist /srv
 EXPOSE 80 443 443/udp
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1/ || exit 1
-
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1/healthz || exit 1
