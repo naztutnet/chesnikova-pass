@@ -51,6 +51,8 @@ const state = {
   draft: readDraft(),
   freeText: "",
   parseResult: null,
+  requestStatus: "all",
+  requestDate: "all",
 };
 
 const app = document.querySelector("#app");
@@ -99,6 +101,64 @@ function guestCountLabel(count) {
   return `${count} гостей`;
 }
 
+function requestCountLabel(count) {
+  const tail = count % 100;
+  const last = count % 10;
+  if (tail > 10 && tail < 20) return `${count} заявок`;
+  if (last === 1) return `${count} заявка`;
+  if (last > 1 && last < 5) return `${count} заявки`;
+  return `${count} заявок`;
+}
+
+function isoDateWithOffset(offset = 0) {
+  const value = new Date();
+  value.setHours(12, 0, 0, 0);
+  value.setDate(value.getDate() + offset);
+  return value.toISOString().slice(0, 10);
+}
+
+function shortDate(value) {
+  return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" })
+    .format(new Date(`${value}T12:00:00`))
+    .replace(".", "");
+}
+
+function dashboardRequests() {
+  const requests = [
+    { id: "agreed", date: isoDateWithOffset(1), name: "Елена Воронова", place: "Павильон 4", type: "разовый пропуск", status: "Согласовано", statusKey: "agreed" },
+    { id: "processed", date: isoDateWithOffset(0), name: "Артём Каспер", place: "БП — 10", type: "разовый пропуск", status: "Обработано", statusKey: "processed" },
+  ];
+  if (hasDraftData()) {
+    requests.unshift({
+      id: "draft",
+      date: state.draft.date,
+      name: visitorName() || "Новый посетитель",
+      place: state.draft.room || "Место не указано",
+      type: guestCountLabel(state.draft.visitors.length),
+      status: "Черновик",
+      statusKey: "draft",
+      resumable: true,
+    });
+  }
+  return requests;
+}
+
+function filterChip(label, value, current, kind) {
+  const active = value === current;
+  return `<button class="filter-chip${active ? " active" : ""}" type="button" data-filter-${kind}="${value}" aria-pressed="${active}">${label}</button>`;
+}
+
+function requestRow(request) {
+  const tag = request.resumable ? "button" : "article";
+  const action = request.resumable ? ' type="button" data-action="resume"' : "";
+  const statusClass = request.statusKey === "agreed" ? "status-ok" : request.statusKey === "processed" ? "status-processed" : "status-draft";
+  return `<${tag} class="request-row${request.resumable ? " request-row-draft" : ""}"${action}>
+    <span class="request-date">${escapeHtml(shortDate(request.date))}</span>
+    <span class="request-person"><b>${escapeHtml(request.name)}</b><small>${escapeHtml(request.place)} · ${escapeHtml(request.type)}</small></span>
+    <i class="status-pill ${statusClass}">${escapeHtml(request.status)}</i>
+  </${tag}>`;
+}
+
 function hasDraftData() {
   return Boolean(
     state.draft.room
@@ -108,25 +168,42 @@ function hasDraftData() {
 }
 
 function renderHome() {
-  const draftCard = hasDraftData() ? `
-    <button class="request-row request-row-draft" type="button" data-action="resume">
-      <span class="request-date"><i class="status-pill status-draft">Черновик</i></span>
-      <span class="request-person"><b>${escapeHtml(visitorName() || "Новый посетитель")}</b><small>${escapeHtml(state.draft.room || "Место не указано")} · ${guestCountLabel(state.draft.visitors.length)}</small></span>
-      <span class="row-arrow" aria-hidden="true">→</span>
-    </button>` : "";
+  const requests = dashboardRequests();
+  const filtered = requests.filter((request) => {
+    const statusMatches = state.requestStatus === "all" || request.statusKey === state.requestStatus;
+    const dateMatches = state.requestDate === "all" || request.date === isoDateWithOffset(state.requestDate === "today" ? 0 : 1);
+    return statusMatches && dateMatches;
+  });
+  const agreed = requests.filter((request) => request.statusKey === "agreed").length;
+  const drafts = requests.filter((request) => request.statusKey === "draft").length;
+  const requestRows = filtered.length
+    ? filtered.map(requestRow).join("")
+    : `<div class="request-empty"><b>Заявок не найдено</b><span>Попробуйте изменить статус или дату.</span></div>`;
 
   app.innerHTML = `
     <section class="dashboard">
       <header class="dashboard-head">
         <div><h1>Заявки</h1><span>${escapeHtml(formatToday())}</span></div>
       </header>
-      <div class="big-stat"><strong>1</strong><span>гость ожидается<br />завтра</span></div>
-      <div class="stat-grid"><article><span>Согласовано</span><b>1</b></article><article><span>Черновики</span><b>${hasDraftData() ? 1 : 0}</b></article></div>
+      <div class="big-stat"><strong>${requests.length}</strong><span>Всего заявок</span></div>
+      <div class="stat-grid"><article><span>Согласовано</span><b>${agreed}</b></article><article><span>Черновики</span><b>${drafts}</b></article></div>
       <section class="requests-section">
-        <div class="section-title"><h2>Ближайшие заявки</h2><span>${hasDraftData() ? "2 записи" : "1 запись"}</span></div>
+        <div class="section-title"><h2>Заявки</h2><span>${requestCountLabel(filtered.length)}</span></div>
+        <div class="request-filters">
+          <div class="filter-group" role="group" aria-label="Статус заявки">
+            ${filterChip("Все", "all", state.requestStatus, "status")}
+            ${filterChip("Черновик", "draft", state.requestStatus, "status")}
+            ${filterChip("Согласовано", "agreed", state.requestStatus, "status")}
+            ${filterChip("Обработано", "processed", state.requestStatus, "status")}
+          </div>
+          <div class="filter-group" role="group" aria-label="Дата посещения">
+            ${filterChip("Все даты", "all", state.requestDate, "date")}
+            ${filterChip("Сегодня", "today", state.requestDate, "date")}
+            ${filterChip("Завтра", "tomorrow", state.requestDate, "date")}
+          </div>
+        </div>
         <div class="request-list">
-          <article class="request-row"><span class="request-date">27 авг</span><span class="request-person"><b>Елена Воронова</b><small>Павильон 4 · разовый пропуск</small></span><i class="status-pill status-ok">Согласовано</i></article>
-          ${draftCard}
+          ${requestRows}
         </div>
       </section>
     </section>`;
@@ -375,6 +452,14 @@ function render() {
 }
 
 document.addEventListener("click", (event) => {
+  const statusFilter = event.target.closest("[data-filter-status]");
+  const dateFilter = event.target.closest("[data-filter-date]");
+  if (statusFilter || dateFilter) {
+    if (statusFilter) state.requestStatus = statusFilter.dataset.filterStatus;
+    if (dateFilter) state.requestDate = dateFilter.dataset.filterDate;
+    haptic("selection");
+    return renderHome();
+  }
   const target = event.target.closest("[data-action]");
   const action = target?.dataset.action;
   if (!action) return;
