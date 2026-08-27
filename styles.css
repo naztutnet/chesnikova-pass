@@ -400,9 +400,9 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
 
   .dashboard {
     display: grid;
-    grid-template-columns: minmax(270px, 330px) minmax(360px, 1fr);
-    grid-template-rows: auto auto auto auto;
-    gap: 12px 28px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto auto auto;
+    gap: 12px;
     max-width: 1080px;
     margin: 0 auto;
     padding-top: 10px;
@@ -423,12 +423,12 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
   }
   .big-stat strong { font-size: 50px; }
   .big-stat span { color: #a7aaae; font-size: 13px; }
-  .stat-grid { grid-column: 1; grid-row: 3; margin-top: 0; }
-  .stat-grid article { min-height: 78px; padding: 14px; }
+  .stat-grid { grid-column: 2 / 4; grid-row: 2; margin-top: 0; }
+  .stat-grid article { min-height: 88px; padding: 14px 16px; }
   .stat-grid span { font-size: 11px; }
   .stat-grid b { font-size: 24px; }
-  .primary-action { grid-column: 1; grid-row: 4; margin-top: 0; }
-  .requests-section { grid-column: 2; grid-row: 2 / 5; margin-top: 0; }
+  .primary-action { grid-column: 1 / -1; grid-row: 4; margin-top: 0; }
+  .requests-section { grid-column: 1 / -1; grid-row: 3; margin-top: 6px; }
   .section-title { min-height: 34px; }
   .request-row { grid-template-columns: 76px 1fr auto; min-height: 64px; padding: 10px 15px; }
   .request-date { font-size: 11px; }
@@ -667,7 +667,7 @@ input, textarea { min-height: 50px; border-color: var(--line); background: #ffff
   .tab { font-size: 14px; }
   .tab.active { border: 1px solid var(--ink); color: var(--ink); background: #ffffff; }
   .tab-create, .tab-create.active { color: var(--ink); background: #ffffff; }
-  .dashboard { grid-template-rows: auto auto auto; }
+  .dashboard { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto auto auto; gap: 12px; }
   .dashboard-head h1 { font-size: 38px; }
   .big-stat {
     align-items: center;
@@ -679,8 +679,9 @@ input, textarea { min-height: 50px; border-color: var(--line); background: #ffff
   }
   .big-stat strong { font-size: 48px; }
   .big-stat span { color: var(--muted); font-size: 15px; }
+  .stat-grid article { min-height: 88px; }
   .stat-grid span { font-size: 13px; }
-  .requests-section { grid-row: 2 / 4; }
+  .requests-section { grid-column: 1 / -1; grid-row: 3; }
   .request-date { font-size: 12px; }
   .request-person b { font-size: 17px; }
   .request-person small { font-size: 13px; }
