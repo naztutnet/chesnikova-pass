@@ -594,7 +594,7 @@ input, textarea { min-height: 50px; border-color: var(--line); background: #ffff
 
 .screen-lead { max-width: 520px; font-size: 15px; }
 .type-card small { font-size: 10px; }
-.type-card b { font-size: 17px; }
+.type-card b { overflow: hidden; font-size: clamp(14px, 3.8vw, 15px); text-overflow: ellipsis; white-space: nowrap; }
 .type-card em { font-size: 12px; }
 .type-icon,
 .type-card-draft .type-icon,
@@ -692,7 +692,7 @@ input, textarea { min-height: 50px; border-color: var(--line); background: #ffff
   .parse-preview-screen h1 { font-size: 38px; }
   .screen-lead, .wizard-head > p { font-size: 16px; }
   .workflow-nav button b { font-size: 13px; }
-  .type-card b { font-size: 18px; }
+  .type-card b { font-size: 16px; }
   .type-card em { font-size: 13px; }
   label { font-size: 15px; }
   input, textarea { font-size: 16px; }
