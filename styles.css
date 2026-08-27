@@ -670,12 +670,14 @@ input, textarea { min-height: 50px; border-color: var(--line); background: #ffff
   .dashboard { grid-template-rows: auto auto auto; }
   .dashboard-head h1 { font-size: 38px; }
   .big-stat {
-    min-height: 118px;
+    align-items: center;
+    min-height: 88px;
+    padding: 12px 16px;
     border: 1px solid var(--line);
     color: var(--ink);
     background: #ffffff;
   }
-  .big-stat strong { font-size: 54px; }
+  .big-stat strong { font-size: 48px; }
   .big-stat span { color: var(--muted); font-size: 15px; }
   .stat-grid span { font-size: 13px; }
   .requests-section { grid-row: 2 / 4; }
