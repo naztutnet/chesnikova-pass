@@ -46,7 +46,7 @@ function readDraft() {
 
 const previewView = new URLSearchParams(window.location.search).get("view");
 const state = {
-  screen: previewView === "wizard" ? "wizard" : previewView === "new" ? "new" : previewView === "text" ? "free-text" : "home",
+  screen: previewView === "wizard" ? "wizard" : previewView === "new" ? "new" : previewView === "text" ? "free-text" : previewView === "profile" ? "profile" : "home",
   step: 1,
   draft: readDraft(),
   freeText: "",
@@ -149,6 +149,10 @@ function renderNewRequest() {
         <button class="type-card" type="button" data-action="start-fresh"><span class="type-icon" aria-hidden="true">01</span><span><small>По шагам</small><b>Заполнить вручную</b><em>Визит, посетители и проверка</em></span><span class="row-arrow" aria-hidden="true">→</span></button>
         <div class="type-card type-card-disabled" aria-disabled="true"><span class="type-icon" aria-hidden="true">02</span><span><small>Позже</small><b>Импорт списка</b><em>Загрузка файла с посетителями</em></span><span class="lock" aria-hidden="true">—</span></div>
       </div>
+      <details class="request-guide">
+        <summary>Как проходит оформление <span aria-hidden="true">＋</span></summary>
+        <ol class="help-list"><li><div><b>Выберите способ</b><span>Опишите визит своими словами или заполните форму</span></div></li><li><div><b>Проверьте данные</b><span>Сверьте дату, место и посетителей</span></div></li><li><div><b>Дождитесь статуса</b><span>Заявка готова только после подтверждения PassOffice</span></div></li></ol>
+      </details>
       <button class="text-button" type="button" data-action="home">Вернуться к заявкам</button>
     </section>`;
 }
@@ -253,7 +257,7 @@ function renderResult() {
 }
 
 function renderProfile() {
-  app.innerHTML = `<section class="profile-screen"><p class="overline">Профиль</p><h1>Координатор</h1><div class="profile-card"><span class="profile-avatar">АС</span><div><b>Александр</b><small>Веб-демо · реальные заявки отключены</small></div></div><section class="profile-section"><h2>Как оформить пропуск</h2><ol class="help-list"><li><b>Выберите способ</b><span>Свободный текст или обычная форма</span></li><li><b>Проверьте данные</b><span>Визит, посетители и итог заявки</span></li><li><b>Дождитесь статуса</b><span>Успех только после проверки PassOffice</span></li></ol></section><div class="notice"><i></i><p><b>Нужна помощь?</b><br />Обратитесь к администратору бюро пропусков.</p></div></section>`;
+  app.innerHTML = `<section class="profile-screen"><p class="overline">Профиль</p><h1>Координатор</h1><div class="profile-card"><span class="profile-avatar">АС</span><div><b>Александр</b><small>Координатор пропусков</small></div></div></section>`;
 }
 
 function wizardHeader(step, title, subtitle) {

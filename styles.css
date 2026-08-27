@@ -254,14 +254,19 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
 .help-list b { font-size: 12px; }
 .help-list span { margin-top: 4px; color: var(--muted); font-size: 9px; }
 
+.request-guide { margin-top: 20px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.request-guide summary { display: flex; align-items: center; justify-content: space-between; min-height: 50px; list-style: none; font-size: 13px; font-weight: 500; cursor: pointer; }
+.request-guide summary::-webkit-details-marker { display: none; }
+.request-guide summary span { color: var(--accent); font-size: 18px; font-weight: 400; transition: transform .18s ease; }
+.request-guide[open] summary span { transform: rotate(45deg); }
+.request-guide .help-list { margin-top: 0; border-top: 0; }
+
 .profile-screen { padding-top: 14px; }
 .profile-card { display: flex; align-items: center; gap: 12px; margin-top: 24px; padding: 15px; border: 1px solid var(--line); border-radius: 14px; background: white; }
 .profile-avatar { display: grid; flex: 0 0 auto; place-items: center; width: 46px; height: 46px; border-radius: 13px; color: white; background: var(--accent); font-size: 11px; font-weight: 800; }
 .profile-card b, .profile-card small { display: block; }
 .profile-card b { font-size: 12px; }
 .profile-card small { margin-top: 5px; color: var(--muted); font-size: 9px; }
-.profile-section { margin-top: 28px; }
-.profile-section h2 { margin: 0; font-size: 14px; }
 
 .tabbar {
   position: fixed;
@@ -631,7 +636,6 @@ input, textarea { min-height: 50px; border-color: var(--line); background: #ffff
 .help-list li::before { font-size: 11px; }
 .help-list b, .profile-card b { font-size: 14px; }
 .help-list span, .profile-card small { font-size: 12px; }
-.profile-section h2 { font-size: 16px; }
 
 .tabbar { background: #ffffff; }
 .tab { color: var(--muted); font-size: 12px; }
