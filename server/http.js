@@ -131,7 +131,16 @@ function numberParam(url, name, fallback) {
 }
 
 function publicRequest(request) {
-  const primary = request.payload?.visitors?.[0];
+  const visitors = Array.isArray(request.payload?.visitors)
+    ? request.payload.visitors.map((visitor) => ({
+      lastName: visitor.lastName || "",
+      firstName: visitor.firstName || "",
+      middleName: visitor.middleName || "",
+      birthDate: visitor.birthDate || null,
+      foreignCitizen: visitor.isForeignCitizen === true,
+    }))
+    : [];
+  const primary = visitors[0];
   return {
     id: request.id,
     status: request.status,
@@ -140,8 +149,9 @@ function publicRequest(request) {
     visitDate: request.payload?.visitDate || null,
     room: request.payload?.room || null,
     organization: request.payload?.organization || null,
-    visitorCount: request.payload?.visitors?.length || 0,
+    visitorCount: visitors.length,
     primaryVisitor: primary ? [primary.lastName, primary.firstName, primary.middleName].filter(Boolean).join(" ") : null,
+    visitors,
     createdAt: request.createdAt,
     updatedAt: request.updatedAt,
   };

@@ -45,6 +45,7 @@ button { color: inherit; }
 .parse-preview-screen > :not(.overline),
 .profile-screen > :not(.overline),
 .result-screen > :not(.overline),
+.request-detail-screen > :not(.overline),
 .wizard-head > :not(.progress),
 .wizard-head ~ * {
   animation: section-enter var(--motion-view) var(--ease-out) both;
@@ -55,12 +56,14 @@ button { color: inherit; }
 .free-text-screen > :nth-child(3),
 .parse-preview-screen > :nth-child(3),
 .profile-screen > :nth-child(3),
-.result-screen > :nth-child(3) { animation-delay: 55ms; }
+.result-screen > :nth-child(3),
+.request-detail-screen > :nth-child(3) { animation-delay: 55ms; }
 .new-request-screen > :nth-child(n + 4),
 .free-text-screen > :nth-child(n + 4),
 .parse-preview-screen > :nth-child(n + 4),
 .profile-screen > :nth-child(n + 4),
 .result-screen > :nth-child(n + 4),
+.request-detail-screen > :nth-child(n + 4),
 .wizard-head ~ :nth-child(n + 3) { animation-delay: 100ms; }
 
 .dashboard-stats article,
@@ -146,7 +149,8 @@ body[data-screen="wizard"] main,
 body[data-screen="review"] main,
 body[data-screen="result"] main,
 body[data-screen="free-text"] main,
-body[data-screen="text-preview"] main { padding-bottom: calc(28px + var(--safe-bottom)); }
+body[data-screen="text-preview"] main,
+body[data-screen="request-detail"] main { padding-bottom: calc(28px + var(--safe-bottom)); }
 
 .dashboard { padding-top: 8px; }
 .dashboard-head { display: flex; align-items: start; justify-content: space-between; gap: 20px; }
@@ -172,13 +176,16 @@ body[data-screen="text-preview"] main { padding-bottom: calc(28px + var(--safe-b
 .filter-chip { flex: 0 0 auto; min-height: 34px; padding: 0 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: var(--surface); font-size: 11px; font-weight: 500; cursor: pointer; white-space: nowrap; }
 .filter-chip.active { border-color: var(--ink); color: var(--ink); }
 .request-list { overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); }
-.request-row { display: grid; grid-template-columns: 60px 1fr auto; align-items: center; gap: 9px; width: 100%; min-height: 60px; padding: 9px 11px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; }
+.request-row { display: grid; grid-template-columns: 60px minmax(0,1fr) auto; align-items: start; gap: 9px; width: 100%; min-height: 76px; padding: 12px 11px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; }
 .request-row:last-child { border-bottom: 0; }
 button.request-row { cursor: pointer; }
-.request-date { color: var(--muted); font-size: 10px; text-transform: uppercase; }
-.request-person b, .request-person small { display: block; }
-.request-person b { font-size: 14px; }
-.request-person small { margin-top: 5px; color: var(--muted); font-size: 10px; }
+.request-date { padding-top: 2px; color: var(--muted); font-size: 10px; text-transform: uppercase; }
+.request-content, .request-number, .request-place, .request-visitors, .request-visitors > span { display: block; }
+.request-content { min-width: 0; }
+.request-number { overflow-wrap: anywhere; font-size: 15px; line-height: 1.25; }
+.request-place { margin-top: 4px; color: var(--muted); font-size: 10px; }
+.request-visitors { display: grid; gap: 3px; margin-top: 8px; }
+.request-visitors > span { font-size: 11px; line-height: 1.3; }
 .status-pill { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border-radius: 999px; font-size: 9px; font-style: normal; font-weight: 800; white-space: nowrap; }
 .status-ok { color: #19734b; background: #e5f5ed; }
 .status-processed { color: #3f4247; background: #ececeb; }
@@ -188,6 +195,22 @@ button.request-row { cursor: pointer; }
 .request-empty span { color: var(--muted); font-size: 12px; }
 .row-arrow { justify-self: end; color: var(--accent); }
 .request-row-draft { color: var(--ink); }
+
+.request-detail-screen { padding-top: 16px; }
+.request-detail-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 14px 0 20px; }
+.request-detail-title h1 { min-width: 0; margin: 0; overflow-wrap: anywhere; font-size: clamp(28px,8vw,40px); font-weight: 500; line-height: 1; letter-spacing: -.045em; }
+.request-detail-card, .request-detail-visitors { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: white; }
+.request-detail-visitors { margin-top: 12px; }
+.request-detail-visitors > header { display: flex; align-items: baseline; justify-content: space-between; padding: 14px 15px; border-bottom: 1px solid var(--line); }
+.request-detail-visitors > header h2 { margin: 0; font-size: 16px; }
+.request-detail-visitors > header span { color: var(--muted); font-size: 12px; }
+.request-detail-visitors article { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 10px; padding: 13px 15px; border-bottom: 1px solid var(--line); }
+.request-detail-visitors article:last-child { border-bottom: 0; }
+.request-detail-visitors article > span { color: var(--muted); font-size: 10px; }
+.request-detail-visitors b, .request-detail-visitors small { display: block; }
+.request-detail-visitors b { font-size: 14px; line-height: 1.3; }
+.request-detail-visitors small { margin-top: 4px; color: var(--muted); font-size: 11px; }
+.request-detail-back { width: 100%; margin-top: 14px; }
 
 .wizard-head { padding-top: 17px; }
 .progress { height: 2px; margin: 0 -14px 17px; background: #e2e2df; }
@@ -500,7 +523,8 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
   body[data-screen="review"] main,
   body[data-screen="result"] main,
   body[data-screen="free-text"] main,
-  body[data-screen="text-preview"] main { padding-bottom: 38px; }
+  body[data-screen="text-preview"] main,
+  body[data-screen="request-detail"] main { padding-bottom: 38px; }
 
   .tabbar,
   .tabbar[hidden] {
@@ -587,6 +611,7 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
   .profile-screen,
   .help-screen,
   .result-screen,
+  .request-detail-screen,
   .wizard-head,
   .wizard-head ~ *,
   .review-section,
@@ -597,6 +622,7 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
   .profile-screen,
   .help-screen,
   .result-screen { padding-top: 12px; }
+  .request-detail-screen { padding-top: 12px; }
   .wizard-head { padding-top: 12px; }
   .wizard-head h1,
   .help-screen h1,
@@ -845,6 +871,10 @@ body[data-screen="login"] main { display: grid; min-height: 100dvh; padding: 18p
   .request-person b { font-size: 17px; }
   .request-person small { font-size: 13px; }
   .request-row-draft { grid-template-columns: 96px minmax(0, 1fr) auto; }
+  .request-number { font-size: 17px; }
+  .request-place { font-size: 12px; }
+  .request-visitors > span { font-size: 13px; }
+  .request-detail-title h1 { font-size: 38px; }
   .wizard-head h1,
   .help-screen h1,
   .result-screen h1,

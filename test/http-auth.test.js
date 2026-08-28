@@ -162,3 +162,46 @@ test("audio uploads require a supported type and configured SpeechKit", async (t
   assert.equal(response.status, 503);
   assert.equal((await response.json()).error.code, "SPEECH_NOT_CONFIGURED");
 });
+
+test("request API returns the system number and every visitor for grouped requests", async (t) => {
+  const { store, server, origin } = await setup();
+  t.after(() => { server.close(); store.close(); });
+  const login = await fetch(`${origin}/api/auth/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json", origin },
+    body: JSON.stringify({ login: "employee", password: "secret" }),
+  });
+  const session = await login.json();
+  const headers = {
+    cookie: login.headers.get("set-cookie"),
+    origin,
+    "content-type": "application/json",
+    "x-csrf-token": session.data.csrfToken,
+    "idempotency-key": "grouped-request",
+  };
+  const created = await fetch(`${origin}/api/requests`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      visitDate: "2026-08-29",
+      room: "D212",
+      visitors: [
+        { lastName: "Ламперд", firstName: "Кристофер", middleName: "Иванович" },
+        { lastName: "Шварценеггер", firstName: "Арнольд", middleName: "Филиппович" },
+      ],
+    }),
+  });
+  assert.equal(created.status, 201);
+  const createdBody = await created.json();
+  assert.match(createdBody.data.externalId, /^DEMO-/);
+  assert.equal(createdBody.data.visitorCount, 2);
+  assert.deepEqual(createdBody.data.visitors.map(({ lastName, firstName, middleName }) => ({ lastName, firstName, middleName })), [
+    { lastName: "Ламперд", firstName: "Кристофер", middleName: "Иванович" },
+    { lastName: "Шварценеггер", firstName: "Арнольд", middleName: "Филиппович" },
+  ]);
+
+  const list = await fetch(`${origin}/api/requests`, { headers: { cookie: headers.cookie } });
+  const listBody = await list.json();
+  assert.equal(listBody.data[0].externalId, createdBody.data.externalId);
+  assert.equal(listBody.data[0].visitors.length, 2);
+});

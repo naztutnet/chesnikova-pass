@@ -67,6 +67,7 @@ const state = {
   booting: true,
   session: null,
   requests: [],
+  activeRequestId: null,
   lastResult: null,
   submitting: false,
   loginError: "",
@@ -166,19 +167,22 @@ function shortDate(value) {
 function dashboardRequests() {
   const requests = state.requests.map((request) => ({
     id: request.id,
+    externalId: request.externalId,
+    externalStatus: request.externalStatus,
     date: request.visitDate || request.createdAt?.slice(0, 10) || isoDateWithOffset(0),
-    name: request.primaryVisitor || "Посетитель",
+    visitors: request.visitors?.length ? request.visitors : [{ lastName: request.primaryVisitor || "Посетитель" }],
     place: request.room || "Место не указано",
-    type: guestCountLabel(request.visitorCount || 1),
+    organization: request.organization,
     ...requestPresentation(request),
   }));
   if (hasDraftData()) {
     requests.unshift({
       id: "draft",
+      externalId: null,
       date: state.draft.date,
-      name: visitorName() || "Новый посетитель",
+      visitors: state.draft.visitors,
       place: state.draft.room || "Место не указано",
-      type: guestCountLabel(state.draft.visitors.length),
+      organization: state.draft.organization,
       status: "Черновик",
       statusKey: "draft",
       resumable: true,
@@ -205,14 +209,19 @@ function filterChip(label, value, current, kind) {
 }
 
 function requestRow(request) {
-  const tag = request.resumable ? "button" : "article";
-  const action = request.resumable ? ' type="button" data-action="resume"' : "";
+  const action = request.resumable ? 'data-action="resume"' : `data-action="open-request" data-request-id="${escapeHtml(request.id)}"`;
   const statusClass = request.statusKey === "agreed" ? "status-ok" : request.statusKey === "processed" ? "status-processed" : "status-draft";
-  return `<${tag} class="request-row${request.resumable ? " request-row-draft" : ""}"${action}>
+  const title = request.externalId ? `Заявка № ${request.externalId}` : request.resumable ? "Черновик заявки" : "Номер заявки уточняется";
+  const names = request.visitors?.length ? request.visitors : [{ lastName: "Посетитель" }];
+  return `<button class="request-row${request.resumable ? " request-row-draft" : ""}" type="button" ${action} aria-label="${escapeHtml(title)}">
     <span class="request-date">${escapeHtml(shortDate(request.date))}</span>
-    <span class="request-person"><b>${escapeHtml(request.name)}</b><small>${escapeHtml(request.place)} · ${escapeHtml(request.type)}</small></span>
+    <span class="request-content">
+      <b class="request-number">${escapeHtml(title)}</b>
+      <small class="request-place">${escapeHtml(request.place)} · ${escapeHtml(guestCountLabel(names.length))}</small>
+      <span class="request-visitors">${names.map((visitor) => `<span>${escapeHtml(visitorName(visitor) || "Посетитель")}</span>`).join("")}</span>
+    </span>
     <i class="status-pill ${statusClass}">${escapeHtml(request.status)}</i>
-  </${tag}>`;
+  </button>`;
 }
 
 function hasDraftData() {
@@ -583,6 +592,29 @@ function renderResult() {
   app.innerHTML = `<section class="result-screen"><div class="result-mark" aria-hidden="true">✓</div><p class="overline">${isDemo ? "Демо · портал не изменён" : `PassOffice · ${portalStatus.toLocaleLowerCase("ru-RU")}`}</p><h1>${isDemo ? "Заявка собрана" : "Заявка создана"}</h1><p>${isDemo ? "Сценарий работает в демонстрационном режиме. Реальная запись в PassOffice не создавалась." : `Номер заявки: ${escapeHtml(result?.externalId || "—")}`}</p><article class="result-card"><span>${escapeHtml(formatDate(submitted.date, true))}</span><b>${escapeHtml(visitorName(submitted.visitors?.[0]) || "Новый посетитель")}</b><small>${escapeHtml(submitted.room || "Комната или павильон")} · ${guestCountLabel(submitted.visitors?.length || 1)}</small></article><button class="button button-primary" type="button" data-action="home">Вернуться к заявкам</button></section>`;
 }
 
+function renderRequestDetail() {
+  const request = state.requests.find((item) => item.id === state.activeRequestId);
+  if (!request) return goHome();
+  const presentation = requestPresentation(request);
+  const statusClass = presentation.statusKey === "agreed" ? "status-ok" : presentation.statusKey === "processed" ? "status-processed" : "status-draft";
+  const visitors = request.visitors || [];
+  const number = request.externalId ? `№ ${request.externalId}` : "Номер уточняется";
+  app.innerHTML = `<section class="request-detail-screen">
+    <p class="overline">Заявка PassOffice</p>
+    <div class="request-detail-title"><h1>${escapeHtml(number)}</h1><i class="status-pill ${statusClass}">${escapeHtml(presentation.status)}</i></div>
+    <section class="request-detail-card" aria-label="Детали заявки">
+      ${summary("Дата", formatDate(request.visitDate, true))}
+      ${summary("Куда", request.room || "Не указано")}
+      ${summary("Организация", request.organization || "Не указана")}
+    </section>
+    <section class="request-detail-visitors">
+      <header><h2>Посетители</h2><span>${escapeHtml(guestCountLabel(visitors.length))}</span></header>
+      ${visitors.map((visitor, index) => `<article><span>${String(index + 1).padStart(2, "0")}</span><div><b>${escapeHtml(visitorName(visitor) || `Посетитель ${index + 1}`)}</b><small>${visitor.birthDate ? escapeHtml(formatDate(visitor.birthDate, true)) : "Дата рождения не указана"}${visitor.foreignCitizen ? " · иностранный гражданин" : ""}</small></div></article>`).join("")}
+    </section>
+    <button class="button button-secondary request-detail-back" type="button" data-action="home">Вернуться к заявкам</button>
+  </section>`;
+}
+
 function renderProfile() {
   const login = state.session?.user?.login || "Пользователь";
   app.innerHTML = `<section class="profile-screen"><p class="overline">Профиль</p><h1>Координатор</h1><div class="profile-card"><span class="profile-avatar">${escapeHtml(login.slice(0, 2).toUpperCase())}</span><div><b>${escapeHtml(login)}</b><small>Аккаунт PassOffice</small></div></div><button class="button button-secondary profile-logout" type="button" data-action="logout">Выйти</button></section>`;
@@ -704,6 +736,7 @@ function render() {
   if (state.screen === "wizard") state.step === 1 ? renderStepOne() : renderStepTwo();
   if (state.screen === "review") renderReview();
   if (state.screen === "result") renderResult();
+  if (state.screen === "request-detail") renderRequestDetail();
   if (state.screen === "profile") renderProfile();
   const activeTab = state.screen === "new" ? "new" : state.screen;
   document.querySelectorAll(".tab").forEach((tab) => {
@@ -727,6 +760,7 @@ document.addEventListener("click", async (event) => {
   const action = target?.dataset.action;
   if (!action) return;
   if (action === "toggle-speech") return toggleVoiceRecording();
+  if (action === "open-request") { state.activeRequestId = target.dataset.requestId; state.screen = "request-detail"; return render(); }
   if (action === "new") { syncInputs(); state.screen = "new"; return render(); }
   if (action === "resume") return resumeDraft();
   if (action === "free-text") { state.screen = "free-text"; state.parseResult = null; return render(); }
