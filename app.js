@@ -170,7 +170,12 @@ function dashboardRequests() {
 }
 
 function requestPresentation(request) {
-  if (request.status === "VERIFIED") return { status: request.externalStatus === "DEMO_VERIFIED" ? "Демо" : "Согласовано", statusKey: "agreed" };
+  if (request.status === "VERIFIED") {
+    if (request.externalStatus === "DEMO_VERIFIED") return { status: "Демо", statusKey: "agreed" };
+    if (request.externalStatus === "ON_CONFIRMATION") return { status: "На согласовании", statusKey: "processed" };
+    if (request.externalStatus === "HANDLED") return { status: "Обработано", statusKey: "processed" };
+    return { status: "Согласовано", statusKey: "agreed" };
+  }
   if (request.status === "REJECTED") return { status: "Отклонено", statusKey: "rejected" };
   if (request.status === "UNKNOWN") return { status: "Нужна проверка", statusKey: "unknown" };
   return { status: "Отправляется", statusKey: "processed" };
@@ -389,7 +394,8 @@ function renderResult() {
   const result = state.lastResult;
   const submitted = result?.draft || freshDraft();
   const isDemo = result?.externalStatus === "DEMO_VERIFIED";
-  app.innerHTML = `<section class="result-screen"><div class="result-mark" aria-hidden="true">✓</div><p class="overline">${isDemo ? "Демо · портал не изменён" : "PassOffice · проверено"}</p><h1>${isDemo ? "Заявка собрана" : "Заявка создана"}</h1><p>${isDemo ? "Сценарий работает в демонстрационном режиме. Реальная запись в PassOffice не создавалась." : `Номер заявки: ${escapeHtml(result?.externalId || "—")}`}</p><article class="result-card"><span>${escapeHtml(formatDate(submitted.date, true))}</span><b>${escapeHtml(visitorName(submitted.visitors?.[0]) || "Новый посетитель")}</b><small>${escapeHtml(submitted.room || "Комната или павильон")} · ${guestCountLabel(submitted.visitors?.length || 1)}</small></article><button class="button button-primary" type="button" data-action="home">Вернуться к заявкам</button></section>`;
+  const portalStatus = result?.externalStatus === "ON_CONFIRMATION" ? "На согласовании" : result?.externalStatus === "HANDLED" ? "Обработано" : "Согласовано";
+  app.innerHTML = `<section class="result-screen"><div class="result-mark" aria-hidden="true">✓</div><p class="overline">${isDemo ? "Демо · портал не изменён" : `PassOffice · ${portalStatus.toLocaleLowerCase("ru-RU")}`}</p><h1>${isDemo ? "Заявка собрана" : "Заявка создана"}</h1><p>${isDemo ? "Сценарий работает в демонстрационном режиме. Реальная запись в PassOffice не создавалась." : `Номер заявки: ${escapeHtml(result?.externalId || "—")}`}</p><article class="result-card"><span>${escapeHtml(formatDate(submitted.date, true))}</span><b>${escapeHtml(visitorName(submitted.visitors?.[0]) || "Новый посетитель")}</b><small>${escapeHtml(submitted.room || "Комната или павильон")} · ${guestCountLabel(submitted.visitors?.length || 1)}</small></article><button class="button button-primary" type="button" data-action="home">Вернуться к заявкам</button></section>`;
 }
 
 function renderProfile() {

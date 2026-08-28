@@ -23,6 +23,9 @@ export function loadConfig(env = process.env) {
     passOfficeBaseUrl: env.PASSOFFICE_BASE_URL || "https://po.amediastudio.ru/",
     passOfficeOpenApiUrl: env.PASSOFFICE_OPEN_API_URL || "",
     passOfficeApiKey: env.PASSOFFICE_API_KEY || "",
+    passOfficeSiteId: parseOptionalPositiveInteger(env.PASSOFFICE_SITE_ID, "PASSOFFICE_SITE_ID"),
+    passOfficeAccessGroupId: parseOptionalPositiveInteger(env.PASSOFFICE_ACCESS_GROUP_ID, "PASSOFFICE_ACCESS_GROUP_ID"),
+    passOfficeGuestCategoryId: parseOptionalPositiveInteger(env.PASSOFFICE_GUEST_CATEGORY_ID, "PASSOFFICE_GUEST_CATEGORY_ID"),
     sessionTtlMs: parsePositiveInteger(env.SESSION_TTL_SECONDS || "43200", "SESSION_TTL_SECONDS") * 1000,
     secureCookies: env.COOKIE_SECURE ? env.COOKIE_SECURE !== "false" : nodeEnv === "production",
   };
@@ -38,6 +41,11 @@ function parsePositiveInteger(value, name) {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed < 1) throw new Error(`${name} must be a positive integer`);
   return parsed;
+}
+
+function parseOptionalPositiveInteger(value, name) {
+  if (value === undefined || value === "") return null;
+  return parsePositiveInteger(value, name);
 }
 
 function parseEncryptionKey(value, { allowGenerated }) {

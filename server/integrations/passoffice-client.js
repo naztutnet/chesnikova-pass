@@ -37,6 +37,22 @@ export class PassOfficeClient {
     return this.authorizedRequest(portal, "/api/secure/account/getMe");
   }
 
+  async getObject(portal, type, id) {
+    return this.authorizedRequest(portal, `/api/secure/${objectType(type)}/${positiveId(id)}`);
+  }
+
+  async addObject(portal, type, value) {
+    return this.authorizedRequest(portal, `/api/secure/${objectType(type)}`, { method: "POST", body: value });
+  }
+
+  async validateDraft(portal, value) {
+    return this.authorizedRequest(portal, "/api/secure/Request/validateDraft", { method: "POST", body: value });
+  }
+
+  async confirmDraft(portal, value) {
+    return this.authorizedRequest(portal, "/api/secure/Request/confirmDraft", { method: "POST", body: value });
+  }
+
   async authorizedRequest(portal, path, options = {}) {
     try {
       return await this.request(path, { ...options, token: portal.accessToken });
@@ -97,10 +113,22 @@ export class PassOfficeClient {
           ? "Неверный логин или пароль"
           : "PassOffice отклонил запрос";
       const code = invalidCredentials ? "PASSOFFICE_INVALID_CREDENTIALS" : "PASSOFFICE_REQUEST_FAILED";
-      throw new ApiError(invalidCredentials ? 401 : 502, code, message);
+      throw new ApiError(invalidCredentials ? 401 : 502, code, message, { upstreamStatus: response.status });
     }
     return payload;
   }
+}
+
+function objectType(value) {
+  const type = String(value || "");
+  if (!/^[A-Z][A-Za-z0-9]{0,63}$/.test(type)) throw new Error("Invalid PassOffice object type");
+  return type;
+}
+
+function positiveId(value) {
+  const id = Number(value);
+  if (!Number.isInteger(id) || id < 1) throw new Error("Invalid PassOffice object id");
+  return id;
 }
 
 export function encryptTransport(value) {

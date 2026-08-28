@@ -6,6 +6,7 @@ import { createHttpServer } from "./http.js";
 import { DemoPassOfficeProvider } from "./integrations/demo-provider.js";
 import { PassOfficeOpenApiProvider } from "./integrations/open-api-provider.js";
 import { PassOfficeClient } from "./integrations/passoffice-client.js";
+import { PassOfficeWebProvider } from "./integrations/passoffice-web-provider.js";
 import { RequestService } from "./service/requests.js";
 import { createPayloadCipher } from "./storage/crypto.js";
 import { RequestStore } from "./storage/requests.js";
@@ -14,9 +15,9 @@ const config = loadConfig();
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const cipher = createPayloadCipher(config.encryptionKey);
 const store = new RequestStore({ path: config.databasePath, cipher });
-const provider = createProvider(config);
-const requestService = new RequestService({ store, provider });
 const portalClient = new PassOfficeClient({ baseUrl: config.passOfficeBaseUrl });
+const provider = createProvider(config, portalClient);
+const requestService = new RequestService({ store, provider });
 const sessionManager = createSessionManager({ ttlMs: config.sessionTtlMs, secure: config.secureCookies });
 const loginLimiter = createLoginLimiter();
 const server = createHttpServer({ requestService, portalClient, sessionManager, loginLimiter, publicDir: root, providerName: provider.name, appVersion: config.appVersion });
@@ -29,8 +30,13 @@ function shutdown() {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
-function createProvider(settings) {
+function createProvider(settings, client) {
   if (settings.provider === "demo") return new DemoPassOfficeProvider();
   if (settings.provider === "open-api") return new PassOfficeOpenApiProvider({ baseUrl: settings.passOfficeOpenApiUrl, apiKey: settings.passOfficeApiKey });
-  throw new Error("PASSOFFICE_PROVIDER=passoffice-web requires the verified request contract before it can be enabled");
+  return new PassOfficeWebProvider({
+    client,
+    siteId: settings.passOfficeSiteId,
+    accessGroupId: settings.passOfficeAccessGroupId,
+    guestCategoryId: settings.passOfficeGuestCategoryId,
+  });
 }
