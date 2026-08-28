@@ -8,7 +8,7 @@ import { RequestService } from "../server/service/requests.js";
 import { createPayloadCipher } from "../server/storage/crypto.js";
 import { RequestStore } from "../server/storage/requests.js";
 
-async function setup() {
+async function setup({ speechClient = null } = {}) {
   const store = new RequestStore({ path: ":memory:", cipher: createPayloadCipher(Buffer.alloc(32, 2)) });
   const portalClient = {
     async login({ login, password }) {
@@ -23,6 +23,7 @@ async function setup() {
     portalClient,
     sessionManager: createSessionManager({ secure: false }),
     loginLimiter: createLoginLimiter(),
+    speechClient,
     publicDir: process.cwd(),
     providerName: "demo",
     appVersion: "test-release",
@@ -91,4 +92,60 @@ test("credential posts from another origin are rejected before portal login", as
     body: JSON.stringify({ login: "employee", password: "secret" }),
   });
   assert.equal(response.status, 403);
+});
+
+test("authenticated audio is transcribed without storing it in the request API", async (t) => {
+  let received;
+  const speechClient = {
+    isConfigured: true,
+    async transcribe(input) { received = input; return "Завтра D212, Иванов Иван Иванович"; },
+  };
+  const { store, server, origin } = await setup({ speechClient });
+  t.after(() => { server.close(); store.close(); });
+
+  const login = await fetch(`${origin}/api/auth/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json", origin },
+    body: JSON.stringify({ login: "employee", password: "secret" }),
+  });
+  const session = await login.json();
+  const cookie = login.headers.get("set-cookie");
+  const response = await fetch(`${origin}/api/transcriptions`, {
+    method: "POST",
+    headers: {
+      cookie,
+      origin,
+      "content-type": "audio/webm;codecs=opus",
+      "x-csrf-token": session.data.csrfToken,
+    },
+    body: Buffer.from("browser-audio"),
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { data: { text: "Завтра D212, Иванов Иван Иванович", provider: "yandex-speechkit" } });
+  assert.equal(received.contentType, "audio/webm");
+  assert.deepEqual(received.audio, Buffer.from("browser-audio"));
+});
+
+test("audio uploads require a supported type and configured SpeechKit", async (t) => {
+  const { store, server, origin } = await setup();
+  t.after(() => { server.close(); store.close(); });
+  const login = await fetch(`${origin}/api/auth/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json", origin },
+    body: JSON.stringify({ login: "employee", password: "secret" }),
+  });
+  const session = await login.json();
+  const response = await fetch(`${origin}/api/transcriptions`, {
+    method: "POST",
+    headers: {
+      cookie: login.headers.get("set-cookie"),
+      origin,
+      "content-type": "audio/webm",
+      "x-csrf-token": session.data.csrfToken,
+    },
+    body: Buffer.from("audio"),
+  });
+  assert.equal(response.status, 503);
+  assert.equal((await response.json()).error.code, "SPEECH_NOT_CONFIGURED");
 });

@@ -4,9 +4,11 @@ import { extname, join, normalize } from "node:path";
 import { ApiError, errorBody } from "./errors.js";
 
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8" };
-const PUBLIC_FILES = new Set(["index.html", "styles.css", "app.js", "free-text-parser.js", "speech-recognition.js"]);
+const PUBLIC_FILES = new Set(["index.html", "styles.css", "app.js", "free-text-parser.js", "voice-recorder.js"]);
+const AUDIO_CONTENT_TYPES = new Set(["audio/webm", "audio/mp4", "audio/ogg", "audio/mpeg", "application/octet-stream"]);
+const MAX_AUDIO_UPLOAD_BYTES = 4 * 1024 * 1024;
 
-export function createHttpServer({ requestService, portalClient, sessionManager, loginLimiter, publicDir, providerName, appVersion = "dev" }) {
+export function createHttpServer({ requestService, portalClient, sessionManager, loginLimiter, speechClient = null, publicDir, providerName, appVersion = "dev" }) {
   return createServer(async (req, res) => {
     try {
       const url = new URL(req.url, "http://localhost");
@@ -49,6 +51,17 @@ export function createHttpServer({ requestService, portalClient, sessionManager,
       if (url.pathname.startsWith("/api/")) {
         const session = sessionManager.requireSession(req);
         const user = session.user;
+        if (url.pathname === "/api/transcriptions" && req.method === "POST") {
+          assertSameOrigin(req);
+          sessionManager.requireCsrf(req, session);
+          if (!speechClient?.isConfigured) throw new ApiError(503, "SPEECH_NOT_CONFIGURED", "Распознавание речи пока не настроено");
+          const contentType = String(req.headers["content-type"] || "").split(";", 1)[0].trim().toLowerCase();
+          if (!AUDIO_CONTENT_TYPES.has(contentType)) throw new ApiError(415, "UNSUPPORTED_AUDIO", "Этот формат записи не поддерживается");
+          const audio = await readBuffer(req, MAX_AUDIO_UPLOAD_BYTES);
+          if (!audio.length) throw new ApiError(422, "EMPTY_AUDIO", "Запись получилась пустой. Попробуйте ещё раз");
+          const text = await speechClient.transcribe({ audio, contentType });
+          return json(res, 200, { data: { text, provider: "yandex-speechkit" } });
+        }
         if (url.pathname === "/api/requests" && req.method === "POST") {
           assertSameOrigin(req);
           sessionManager.requireCsrf(req, session);
@@ -75,6 +88,12 @@ export function createHttpServer({ requestService, portalClient, sessionManager,
 }
 
 async function readJson(req, limit = 256 * 1024) {
+  const body = await readBuffer(req, limit);
+  try { return JSON.parse(body.toString("utf8") || "{}"); }
+  catch { throw new ApiError(400, "INVALID_JSON", "Некорректный JSON"); }
+}
+
+async function readBuffer(req, limit) {
   const chunks = [];
   let size = 0;
   for await (const chunk of req) {
@@ -82,8 +101,7 @@ async function readJson(req, limit = 256 * 1024) {
     if (size > limit) throw new ApiError(413, "PAYLOAD_TOO_LARGE", "Слишком большой запрос");
     chunks.push(chunk);
   }
-  try { return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}"); }
-  catch { throw new ApiError(400, "INVALID_JSON", "Некорректный JSON"); }
+  return Buffer.concat(chunks);
 }
 
 async function serveStatic(res, publicDir, pathname) {

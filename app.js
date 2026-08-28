@@ -1,14 +1,18 @@
 import { parseFreeTextRequest } from "./free-text-parser.js";
 import {
-  getSpeechRecognitionConstructor,
-  mergeSpeechTranscript,
-  speechRecognitionErrorMessage,
-} from "./speech-recognition.js";
+  getVoiceRecorderSupport,
+  preferredRecordingMimeType,
+  recordingErrorMessage,
+} from "./voice-recorder.js";
 
-const SpeechRecognitionApi = getSpeechRecognitionConstructor(window);
-let speechRecognition = null;
-let speechBaseText = "";
-let speechStopRequested = false;
+const voiceRecordingSupported = getVoiceRecorderSupport(window);
+let mediaRecorder = null;
+let microphoneStream = null;
+let audioChunks = [];
+let recordingTimer = null;
+let recordingStartedAt = 0;
+let transcriptionController = null;
+let voiceStartPending = false;
 
 function freshVisitor() {
   return {
@@ -66,10 +70,10 @@ const state = {
   lastResult: null,
   submitting: false,
   loginError: "",
-  speechStatus: SpeechRecognitionApi ? "idle" : "unsupported",
-  speechMessage: SpeechRecognitionApi
-    ? "Нажмите кнопку и продиктуйте дату, место и гостей."
-    : "Голосовой ввод не поддерживается этим браузером. Используйте диктовку клавиатуры или введите текст вручную.",
+  speechStatus: voiceRecordingSupported ? "idle" : "unsupported",
+  speechMessage: voiceRecordingSupported
+    ? "Нажмите кнопку и продиктуйте дату, место и гостей — до 30 секунд."
+    : "Запись голоса не поддерживается этим браузером. Используйте диктовку клавиатуры или введите текст вручную.",
 };
 
 const app = document.querySelector("#app");
@@ -325,10 +329,10 @@ function renderFreeText() {
         <div class="speech-input">
           <button class="speech-button${isListening ? " is-listening" : ""}" type="button" data-action="toggle-speech" aria-pressed="${isListening}" aria-describedby="speechStatus" ${speechDisabled ? "disabled" : ""}>
             <span class="speech-dot" aria-hidden="true"></span>
-            <span data-speech-label>${isListening ? "Остановить запись" : speechDisabled ? "Голосовой ввод недоступен" : "Продиктовать заявку"}</span>
+            <span data-speech-label>${isListening ? "Остановить запись" : speechDisabled ? "Запись голоса недоступна" : "Продиктовать заявку"}</span>
           </button>
           <p id="speechStatus" class="speech-status${state.speechStatus === "error" ? " is-error" : ""}" data-speech-status role="status" aria-live="polite">${escapeHtml(state.speechMessage)}</p>
-          <p class="speech-privacy">Аудио не сохраняется приложением. Распознавание выполняет браузер и может использовать онлайн-сервис.</p>
+          <p class="speech-privacy">Запись отправляется в Яндекс SpeechKit только для расшифровки и не сохраняется приложением.</p>
         </div>
         <div class="example-copy"><b>Можно короче</b><span>«Завтра, павильон 4. Гости: Воронова Елена Сергеевна»</span></div>
       </div>
@@ -361,91 +365,137 @@ function setSpeechState(status, message) {
   updateSpeechUi();
 }
 
-function cancelSpeechRecognition({ silent = true } = {}) {
-  if (speechRecognition) {
-    const currentRecognition = speechRecognition;
-    speechRecognition = null;
-    currentRecognition.onstart = null;
-    currentRecognition.onresult = null;
-    currentRecognition.onerror = null;
-    currentRecognition.onend = null;
-    try { currentRecognition.abort(); } catch {}
+function stopMicrophoneTracks() {
+  microphoneStream?.getTracks().forEach((track) => track.stop());
+  microphoneStream = null;
+}
+
+function clearRecordingTimer() {
+  clearInterval(recordingTimer);
+  recordingTimer = null;
+}
+
+function cancelVoiceRecording({ silent = true } = {}) {
+  clearRecordingTimer();
+  if (mediaRecorder) {
+    const recorder = mediaRecorder;
+    mediaRecorder = null;
+    recorder.ondataavailable = null;
+    recorder.onerror = null;
+    recorder.onstop = null;
+    try { if (recorder.state !== "inactive") recorder.stop(); } catch {}
   }
-  speechStopRequested = false;
+  audioChunks = [];
+  transcriptionController?.abort();
+  transcriptionController = null;
+  stopMicrophoneTracks();
   if (state.speechStatus !== "unsupported") {
     state.speechStatus = "idle";
     state.speechMessage = silent
-      ? "Нажмите кнопку и продиктуйте дату, место и гостей."
+      ? "Нажмите кнопку и продиктуйте дату, место и гостей — до 30 секунд."
       : "Запись остановлена. Можно продолжить вручную или включить микрофон снова.";
     updateSpeechUi();
   }
 }
 
-function startSpeechRecognition() {
-  if (!SpeechRecognitionApi || speechRecognition) return;
-  const textarea = document.querySelector("[data-free-text]");
-  speechBaseText = textarea?.value || state.freeText;
-  state.freeText = speechBaseText;
-  speechStopRequested = false;
+async function requestYandexTranscription(blob, signal) {
+  const response = await fetch("/api/transcriptions", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": blob.type || "application/octet-stream",
+      "X-CSRF-Token": state.session.csrfToken,
+    },
+    body: blob,
+    signal,
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload?.error?.message || "Не удалось распознать запись");
+  const text = typeof payload?.data?.text === "string" ? payload.data.text.trim() : "";
+  if (!text) throw new Error("Яндекс не вернул текст. Попробуйте ещё раз");
+  return text;
+}
 
-  const recognition = new SpeechRecognitionApi();
-  speechRecognition = recognition;
-  recognition.lang = "ru-RU";
-  recognition.continuous = false;
-  recognition.interimResults = true;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = () => {
-    setSpeechState("listening", "Слушаю… Говорите дату, место и имена гостей.");
-  };
-  recognition.onresult = (event) => {
-    let finalText = "";
-    let interimText = "";
-    for (let index = 0; index < event.results.length; index += 1) {
-      const transcript = event.results[index][0]?.transcript || "";
-      if (event.results[index].isFinal) finalText += transcript;
-      else interimText += transcript;
-    }
-    const spokenText = `${finalText} ${interimText}`.trim();
-    state.freeText = mergeSpeechTranscript(speechBaseText, spokenText);
-    const currentTextarea = document.querySelector("[data-free-text]");
-    if (currentTextarea) {
-      currentTextarea.value = state.freeText;
-      currentTextarea.scrollTop = currentTextarea.scrollHeight;
-    }
-  };
-  recognition.onerror = (event) => {
-    if (event.error === "aborted" && speechStopRequested) return;
-    setSpeechState("error", speechRecognitionErrorMessage(event.error));
-  };
-  recognition.onend = () => {
-    speechRecognition = null;
-    speechStopRequested = false;
-    if (state.speechStatus === "error") return;
-    if (state.freeText.trim() !== speechBaseText.trim()) {
-      setSpeechState("done", "Текст распознан. Проверьте его перед разбором.");
-      document.querySelector("[data-free-text]")?.focus();
-    } else {
-      setSpeechState("idle", "Запись завершена без текста. Нажмите кнопку, чтобы попробовать снова.");
-    }
-  };
-
+async function finishVoiceRecording(recorder) {
+  clearRecordingTimer();
+  stopMicrophoneTracks();
+  const chunks = audioChunks;
+  audioChunks = [];
+  mediaRecorder = null;
+  const blob = new Blob(chunks, { type: recorder.mimeType || chunks[0]?.type || "application/octet-stream" });
+  if (!blob.size) {
+    setSpeechState("error", "Запись получилась пустой. Попробуйте ещё раз.");
+    return;
+  }
+  let controller;
   try {
-    recognition.start();
-  } catch {
-    speechRecognition = null;
-    setSpeechState("error", "Микрофон уже запускается. Подождите секунду и попробуйте снова.");
+    controller = new AbortController();
+    transcriptionController = controller;
+    const text = await requestYandexTranscription(blob, controller.signal);
+    if (transcriptionController !== controller) return;
+    state.freeText = [state.freeText.trim(), text].filter(Boolean).join(" ");
+    const textarea = document.querySelector("[data-free-text]");
+    if (textarea) {
+      textarea.value = state.freeText;
+      textarea.scrollTop = textarea.scrollHeight;
+      textarea.focus();
+    }
+    setSpeechState("done", "Яндекс распознал текст. Проверьте его перед разбором.");
+  } catch (error) {
+    if (error.name === "AbortError") return;
+    setSpeechState("error", error.message);
+  } finally {
+    if (transcriptionController === controller) transcriptionController = null;
   }
 }
 
-function toggleSpeechRecognition() {
-  if (speechRecognition) {
-    speechStopRequested = true;
-    setSpeechState("processing", "Завершаю запись и распознаю текст…");
-    try { speechRecognition.stop(); } catch { cancelSpeechRecognition({ silent: false }); }
-    return;
+function stopVoiceRecording() {
+  if (!mediaRecorder || mediaRecorder.state === "inactive") return;
+  setSpeechState("processing", "Отправляю запись в Яндекс SpeechKit…");
+  clearRecordingTimer();
+  try { mediaRecorder.stop(); } catch { cancelVoiceRecording({ silent: false }); }
+}
+
+async function startVoiceRecording() {
+  if (!voiceRecordingSupported || mediaRecorder || voiceStartPending || state.speechStatus === "processing") return;
+  voiceStartPending = true;
+  setSpeechState("processing", "Запрашиваю доступ к микрофону…");
+  try {
+    microphoneStream = await navigator.mediaDevices.getUserMedia({
+      audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+      video: false,
+    });
+    if (state.screen !== "free-text") return cancelVoiceRecording();
+    const mimeType = preferredRecordingMimeType(window.MediaRecorder);
+    const recorder = new MediaRecorder(microphoneStream, mimeType ? { mimeType } : undefined);
+    mediaRecorder = recorder;
+    audioChunks = [];
+    recorder.ondataavailable = (event) => { if (event.data?.size) audioChunks.push(event.data); };
+    recorder.onerror = (event) => {
+      cancelVoiceRecording();
+      setSpeechState("error", recordingErrorMessage(event.error));
+    };
+    recorder.onstop = () => finishVoiceRecording(recorder);
+    recorder.start(250);
+    recordingStartedAt = Date.now();
+    setSpeechState("listening", "Слушаю… 0 из 30 секунд.");
+    recordingTimer = setInterval(() => {
+      const seconds = Math.min(30, Math.floor((Date.now() - recordingStartedAt) / 1000));
+      if (seconds >= 30) return stopVoiceRecording();
+      setSpeechState("listening", `Слушаю… ${seconds} из 30 секунд.`);
+    }, 1000);
+  } catch (error) {
+    stopMicrophoneTracks();
+    setSpeechState("error", recordingErrorMessage(error));
+  } finally {
+    voiceStartPending = false;
   }
-  startSpeechRecognition();
+}
+
+function toggleVoiceRecording() {
+  if (mediaRecorder?.state === "recording") return stopVoiceRecording();
+  return startVoiceRecording();
 }
 
 function renderTextPreview() {
@@ -632,7 +682,7 @@ function navigateBack() {
 }
 
 function render() {
-  if (state.screen !== "free-text" && speechRecognition) cancelSpeechRecognition();
+  if (state.screen !== "free-text" && (mediaRecorder || transcriptionController)) cancelVoiceRecording();
   document.body.dataset.screen = state.screen;
   if (state.booting) {
     tabbar.hidden = true;
@@ -676,7 +726,7 @@ document.addEventListener("click", async (event) => {
   const target = event.target.closest("[data-action]");
   const action = target?.dataset.action;
   if (!action) return;
-  if (action === "toggle-speech") return toggleSpeechRecognition();
+  if (action === "toggle-speech") return toggleVoiceRecording();
   if (action === "new") { syncInputs(); state.screen = "new"; return render(); }
   if (action === "resume") return resumeDraft();
   if (action === "free-text") { state.screen = "free-text"; state.parseResult = null; return render(); }
@@ -794,7 +844,7 @@ document.addEventListener("submit", async (event) => {
 document.addEventListener("input", (event) => {
   if (!event.target.matches("input, textarea, select")) return;
   if (event.target.matches("[data-free-text]")) {
-    if (speechRecognition) cancelSpeechRecognition({ silent: false });
+    if (mediaRecorder || transcriptionController) cancelVoiceRecording({ silent: false });
     state.freeText = event.target.value;
     const freeTextError = document.querySelector('[data-error-for="freeText"]');
     if (freeTextError) freeTextError.hidden = true;

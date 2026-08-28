@@ -7,6 +7,7 @@ import { DemoPassOfficeProvider } from "./integrations/demo-provider.js";
 import { PassOfficeOpenApiProvider } from "./integrations/open-api-provider.js";
 import { PassOfficeClient } from "./integrations/passoffice-client.js";
 import { PassOfficeWebProvider } from "./integrations/passoffice-web-provider.js";
+import { YandexSpeechKitClient } from "./integrations/yandex-speechkit.js";
 import { RequestService } from "./service/requests.js";
 import { createPayloadCipher } from "./storage/crypto.js";
 import { RequestStore } from "./storage/requests.js";
@@ -20,7 +21,8 @@ const provider = createProvider(config, portalClient);
 const requestService = new RequestService({ store, provider });
 const sessionManager = createSessionManager({ ttlMs: config.sessionTtlMs, secure: config.secureCookies });
 const loginLimiter = createLoginLimiter();
-const server = createHttpServer({ requestService, portalClient, sessionManager, loginLimiter, publicDir: root, providerName: provider.name, appVersion: config.appVersion });
+const speechClient = new YandexSpeechKitClient({ apiKey: config.yandexApiKey, folderId: config.yandexFolderId });
+const server = createHttpServer({ requestService, portalClient, sessionManager, loginLimiter, speechClient, publicDir: root, providerName: provider.name, appVersion: config.appVersion });
 
 server.listen(config.port, config.host, () => console.log(`CHESNIKOVA PASS listening on ${config.host}:${config.port} (${provider.name})`));
 

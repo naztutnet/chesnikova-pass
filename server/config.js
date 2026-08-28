@@ -26,6 +26,8 @@ export function loadConfig(env = process.env) {
     passOfficeSiteId: parseOptionalPositiveInteger(env.PASSOFFICE_SITE_ID, "PASSOFFICE_SITE_ID"),
     passOfficeAccessGroupId: parseOptionalPositiveInteger(env.PASSOFFICE_ACCESS_GROUP_ID, "PASSOFFICE_ACCESS_GROUP_ID"),
     passOfficeGuestCategoryId: parseOptionalPositiveInteger(env.PASSOFFICE_GUEST_CATEGORY_ID, "PASSOFFICE_GUEST_CATEGORY_ID"),
+    yandexApiKey: env.YANDEX_API_KEY || "",
+    yandexFolderId: env.YANDEX_FOLDER_ID || "",
     sessionTtlMs: parsePositiveInteger(env.SESSION_TTL_SECONDS || "43200", "SESSION_TTL_SECONDS") * 1000,
     secureCookies: env.COOKIE_SECURE ? env.COOKIE_SECURE !== "false" : nodeEnv === "production",
   };

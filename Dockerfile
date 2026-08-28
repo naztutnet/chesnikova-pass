@@ -10,7 +10,9 @@ ENV NODE_ENV=production \
     APP_VERSION=${APP_VERSION}
 
 COPY package.json ./
-COPY index.html styles.css app.js free-text-parser.js speech-recognition.js ./
+RUN apk add --no-cache ffmpeg
+
+COPY index.html styles.css app.js free-text-parser.js voice-recorder.js ./
 COPY server ./server
 
 RUN mkdir -p /app/data && chown -R node:node /app
