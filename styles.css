@@ -715,8 +715,10 @@ body[data-screen="login"] main { display: grid; min-height: 100dvh; padding: 18p
 }
 
 @media (max-width: 759px) {
+  .topbar { padding-right: 18px; padding-left: 18px; }
+  main { padding-right: 18px; padding-left: 18px; }
   .request-filters { display: grid; justify-content: stretch; }
-  .filter-group { margin-right: -14px; padding-right: 14px; }
+  .filter-group { margin-right: -18px; padding-right: 18px; }
   .filter-chip { min-height: 36px; font-size: 12px; }
 }
 
