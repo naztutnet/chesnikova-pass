@@ -22,7 +22,10 @@ function setup({ validation = [], confirmation = { id: 153500, state: 2 }, confi
   const client = {
     async getMe() { calls.push(["getMe"]); return { me: { personal: { id: 7429 }, organization: objects["Person:7429"].organization } }; },
     async getObject(_portal, type, id) { calls.push(["getObject", type, id]); return objects[`${type}:${id}`]; },
-    async addObject(_portal, type, value) { calls.push(["addObject", type, value]); return { ...value, id: 113100 }; },
+    async addObject(_portal, type, value) {
+      calls.push(["addObject", type, value]);
+      return { ...value, id: type === "Request" ? 153500 : 113100 };
+    },
     async validateDraft(_portal, value) { calls.push(["validateDraft", value]); return validation; },
     async confirmDraft(_portal, value) { calls.push(["confirmDraft", value]); if (confirmError) throw confirmError; return confirmation; },
   };
@@ -33,14 +36,17 @@ test("creates visitors, validates the full draft, and confirms it once", async (
   const { provider, calls } = setup();
   const result = await provider.submit(input, { portalSession });
   assert.deepEqual(result, { externalId: "153500", externalStatus: "ON_CONFIRMATION" });
-  assert.deepEqual(calls.map((call) => call[0]), ["getMe", "getObject", "getObject", "getObject", "getObject", "addObject", "validateDraft", "confirmDraft"]);
+  assert.deepEqual(calls.map((call) => call[0]), ["getMe", "getObject", "getObject", "getObject", "getObject", "addObject", "addObject", "validateDraft", "confirmDraft"]);
 
   const person = calls.find((call) => call[0] === "addObject")[2];
   assert.equal(person.category.id, 16);
   assert.equal(person.organization.id, 851);
   assert.equal(person.birthday, "1990-05-19T21:00:00.000Z");
 
+  const requestCreate = calls.find((call) => call[0] === "addObject" && call[1] === "Request")[2];
   const draft = calls.find((call) => call[0] === "validateDraft")[1];
+  assert.equal(requestCreate.id, 0);
+  assert.equal(draft.id, 153500);
   assert.equal(draft.activateDateTime, "2026-08-28T21:00:00.000Z");
   assert.equal(draft.deactivateDateTime, "2026-08-29T20:59:00.000Z");
   assert.equal(draft.addField1, "БП - 10");

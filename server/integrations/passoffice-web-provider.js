@@ -43,7 +43,20 @@ export class PassOfficeWebProvider {
       visitors.push(created);
     }
 
-    const draft = requestPayload(input, { visitors, meetingPerson, site, accessGroup, organization });
+    const draftPayload = requestPayload(input, { visitors, meetingPerson, site, accessGroup, organization });
+    let draft;
+    try {
+      draft = await this.client.addObject(portalSession, "Request", draftPayload);
+    } catch (error) {
+      if (["PASSOFFICE_TIMEOUT", "PASSOFFICE_UNAVAILABLE"].includes(error?.code)) error.outcomeUnknown = true;
+      throw error;
+    }
+    if (!refId(draft)) {
+      const error = new ApiError(502, "PASSOFFICE_INVALID_DRAFT_RESPONSE", "PassOffice не подтвердил создание черновика заявки");
+      error.outcomeUnknown = true;
+      throw error;
+    }
+
     const validation = await this.client.validateDraft(portalSession, draft);
     assertValidationAccepted(validation);
 
