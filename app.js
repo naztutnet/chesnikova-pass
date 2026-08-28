@@ -342,11 +342,13 @@ function updateSpeechUi() {
   const label = document.querySelector("[data-speech-label]");
   const status = document.querySelector("[data-speech-status]");
   const isListening = state.speechStatus === "listening";
+  const isProcessing = state.speechStatus === "processing";
   if (button) {
     button.classList.toggle("is-listening", isListening);
     button.setAttribute("aria-pressed", String(isListening));
+    button.disabled = isProcessing;
   }
-  if (label) label.textContent = isListening ? "Остановить запись" : "Продиктовать заявку";
+  if (label) label.textContent = isListening ? "Остановить запись" : isProcessing ? "Распознаю…" : "Продиктовать заявку";
   if (status) {
     status.textContent = state.speechMessage;
     status.classList.toggle("is-error", state.speechStatus === "error");
