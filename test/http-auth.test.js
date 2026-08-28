@@ -42,6 +42,15 @@ test("health endpoint identifies the running release", async (t) => {
   assert.deepEqual(await response.json(), { status: "ok", provider: "demo", version: "test-release" });
 });
 
+test("missing static files return 404 without crashing the server", async (t) => {
+  const { store, server, origin } = await setup();
+  t.after(() => { server.close(); store.close(); });
+  const missing = await fetch(`${origin}/favicon.ico`);
+  assert.equal(missing.status, 404);
+  const health = await fetch(`${origin}/api/health`);
+  assert.equal(health.status, 200);
+});
+
 test("web login creates only an opaque cookie and supports logout with CSRF", async (t) => {
   const { store, server, origin } = await setup();
   t.after(() => { server.close(); store.close(); });

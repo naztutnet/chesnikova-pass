@@ -65,7 +65,7 @@ export function createHttpServer({ requestService, portalClient, sessionManager,
         throw new ApiError(404, "NOT_FOUND", "Маршрут не найден");
       }
 
-      return serveStatic(res, publicDir, url.pathname);
+      return await serveStatic(res, publicDir, url.pathname);
     } catch (error) {
       const status = error instanceof ApiError ? error.status : 500;
       if (!(error instanceof ApiError)) console.error("request_failed", { name: error?.name, message: error?.message });
