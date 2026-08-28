@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Как я сделал CHESNIKOVA PASS — полный гайд</title>
+<style>
+@page{size:A4;margin:11mm 12mm 13mm;@bottom-left{content:"КАК Я СДЕЛАЛ CHESNIKOVA PASS";color:#686868;font:7.5pt Arial;letter-spacing:.08em}@bottom-right{content:counter(page)" / "counter(pages);color:#686868;font:7.5pt Arial}}
+:root{--ink:#151515;--blue:#245dff;--muted:#66686c;--soft:#f5f5f3;--stroke:2pt;--thin:1.2pt}
+*{box-sizing:border-box}html,body{margin:0;color:var(--ink);font:9.4pt/1.4 Arial,Helvetica,sans-serif}body{background:#fff}.page{position:relative;min-height:263mm;break-after:page}.page:last-child{break-after:auto}
+.eyebrow{margin:0 0 5mm;color:var(--blue);font-size:8pt;font-weight:700;letter-spacing:.14em;text-transform:uppercase}h1,h2,h3,p{margin-top:0}h1{margin-bottom:6mm;font-size:31pt;font-weight:500;line-height:.98;letter-spacing:-.045em}h2{margin-bottom:4mm;font-size:22pt;font-weight:500;line-height:1.04;letter-spacing:-.035em}h3{margin-bottom:1.5mm;font-size:12pt;font-weight:500}p{margin-bottom:3mm}a{color:inherit;text-decoration-color:var(--blue);text-underline-offset:2px}.lead{max-width:160mm;color:var(--muted);font-size:12pt;line-height:1.48}.small{color:var(--muted);font-size:8pt}
+.title-row{display:flex;justify-content:space-between;gap:6mm}.index{color:var(--blue);font-size:27pt;line-height:.9}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm}.card{padding:4mm;border:var(--stroke) solid var(--ink);border-radius:4mm;break-inside:avoid}.card.thin{border-width:var(--thin)}.card p:last-child{margin-bottom:0}.label{margin-bottom:2mm;color:var(--blue);font-size:7.3pt;font-weight:700;letter-spacing:.11em;text-transform:uppercase}
+.cover-icon{display:grid;place-items:center;width:32mm;height:32mm;margin:12mm 0 10mm;border:var(--stroke) solid var(--ink);border-radius:8mm;font-size:20pt}.cover-icon:before{content:"";position:absolute;width:3.5mm;height:3.5mm;margin:-22mm 0 0 -22mm;border-radius:50%;background:var(--blue)}.stack{display:flex;flex-wrap:wrap;gap:2mm;margin:4mm 0}.stack span{padding:2mm 3mm;border:var(--stroke) solid var(--ink);border-radius:99mm}.cover-link{display:block;margin-top:8mm;padding:5mm;border:var(--stroke) solid var(--ink);border-radius:5mm;text-decoration:none}.cover-link small,.cover-link b{display:block}.cover-link small{color:var(--muted)}.cover-link b{font-size:13pt;font-weight:500}.cover-link i{float:right;color:var(--blue);font-size:18pt;font-style:normal}.meta{position:absolute;right:0;bottom:10mm;left:0;display:flex;justify-content:space-between;padding-top:3mm;border-top:var(--thin) solid var(--ink);color:var(--muted);font-size:8pt}
+.prompt{margin:4mm 0;padding:4mm;border:var(--stroke) solid var(--ink);border-radius:4mm;break-inside:avoid}.prompt:before{content:"ПРИМЕР ПРОМПТА";display:block;margin-bottom:2mm;color:var(--blue);font-size:7.2pt;font-weight:700;letter-spacing:.12em}.prompt.raw:before{content:"КАК ЭТО ЗВУЧАЛО В РАБОТЕ"}.prompt.good:before{content:"УЛУЧШЕННЫЙ ПРОМПТ"}.prompt pre{margin:0;white-space:pre-wrap;font:8.5pt/1.42 "Courier New",monospace}
+.note{margin-top:4mm;padding:3.5mm 4mm;border:var(--stroke) solid var(--ink);border-left:4pt solid var(--blue)}.note b{display:block;margin-bottom:1mm}.check{margin:0;padding:0;list-style:none}.check li{position:relative;margin-bottom:2mm;padding-left:6mm}.check li:before{content:"✓";position:absolute;left:0;color:var(--blue);font-weight:700}
+.flow{display:flex;align-items:center;gap:1.5mm;margin:4mm 0}.flow span{flex:1;min-height:14mm;padding:3mm 1.5mm;border:var(--thin) solid var(--ink);border-radius:3mm;text-align:center}.flow i{color:var(--blue);font-style:normal}.arch{display:grid;grid-template-columns:1fr 11mm 1fr 11mm 1fr;align-items:center;gap:1.5mm;margin:4mm 0}.box{min-height:24mm;padding:3mm;border:var(--stroke) solid var(--ink);border-radius:3.5mm;text-align:center}.box b,.box small{display:block}.box small{margin-top:1mm;color:var(--muted)}.arrow{color:var(--blue);text-align:center}
+table{width:100%;border-collapse:separate;border-spacing:0;border:var(--stroke) solid var(--ink);border-radius:4mm;overflow:hidden}th,td{padding:3mm;border-right:var(--thin) solid var(--ink);border-bottom:var(--thin) solid var(--ink);vertical-align:top;text-align:left}th:last-child,td:last-child{border-right:0}tr:last-child td{border-bottom:0}th{background:var(--soft);font-size:8pt}td{font-size:8.4pt}
+.timeline{display:grid;gap:2.2mm}.row{display:grid;grid-template-columns:18mm 1fr auto;gap:3mm;align-items:center;padding:2.8mm 3.5mm;border:var(--thin) solid var(--ink);border-radius:3mm}.row small{color:var(--muted)}.row b{font-weight:500}.status{display:grid;grid-template-columns:30mm 1fr;gap:3mm;margin-bottom:2mm;padding:2.7mm 3mm;border:var(--thin) solid var(--ink);border-radius:3mm}.status b{font-weight:500}.status span{color:var(--muted)}
+.code{margin:3mm 0;padding:3.5mm;border:var(--stroke) solid var(--ink);border-radius:3mm;background:var(--soft);white-space:pre-wrap;font:8pt/1.42 "Courier New",monospace}
+.formula{display:grid;grid-template-columns:repeat(3,1fr);gap:2.5mm}.formula span{padding:3mm;border:var(--thin) solid var(--ink);border-radius:3mm}.formula b{display:block;color:var(--blue)}
+</style>
+</head>
+<body>
+<section class="page">
+<p class="eyebrow">Полный разбор проекта · с примерами промптов</p>
+<h1>Как я сделал<br>CHESNIKOVA PASS</h1>
+<p class="lead">От идеи Telegram-бота до рабочего сайта, который входит в PassOffice, создаёт гостевые заявки и понимает голос.</p>
+<div class="cover-icon">CP</div>
+<div class="stack"><span>Продукт</span><span>UX</span><span>Дизайн</span><span>Код</span><span>PassOffice</span><span>SpeechKit</span><span>Продакшен</span></div>
+<a class="cover-link" href="https://chesnikova-pass.201-24-48-93.sslip.io/"><i>↗</i><small>Рабочая версия</small><b>chesnikova-pass.201-24-48-93.sslip.io</b></a>
+<div class="meta"><span>Автор идеи и постановки: Александр Назаров</span><span>Август 2026</span></div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">01 · Коротко</p><h2>Что получилось и кто что делал</h2></div><span class="index">01</span></div>
+<p class="lead">CHESNIKOVA PASS — один адаптивный сайт для телефона и компьютера. Пользователь входит со своим аккаунтом PassOffice, оформляет пропуск, проверяет данные и получает внешний номер и статус.</p>
+<div class="grid3"><div class="card"><p class="label">Ввод</p><h3>Текст, голос или форма</h3><p>Все пути создают один редактируемый черновик.</p></div><div class="card"><p class="label">Контроль</p><h3>Отдельная проверка</h3><p>До финальной кнопки данные не уходят в PassOffice.</p></div><div class="card"><p class="label">Результат</p><h3>ID и статус</h3><p>Успех подтверждается ответом внешней системы.</p></div></div>
+<div class="grid2" style="margin-top:5mm"><div class="card"><p class="label">Моя зона</p><h3>Продукт и вкус</h3><ul class="check"><li>объяснил рабочую проблему;</li><li>дал безопасный доступ к порталу;</li><li>выбирал дизайн;</li><li>показывал дефекты скриншотами;</li><li>разрешал реальные проверки;</li><li>принимал результат на телефоне.</li></ul></div><div class="card"><p class="label">Зона Codex</p><h3>Исследование и реализация</h3><ul class="check"><li>разобрал PassOffice;</li><li>спроектировал UX;</li><li>написал frontend и сервер;</li><li>добавил безопасность и тесты;</li><li>подключил SpeechKit;</li><li>развернул GitHub и Timeweb;</li><li>сверил SHA продакшена.</li></ul></div></div>
+<div class="prompt raw"><pre>«Только давай запилим mini app»
+
+«Он должен логиниться и создавать заявку на портале для гостей»</pre></div>
+<div class="note"><b>Главная мысль</b>Проект появился не из одного идеального промпта. Я задавал направление и давал честную обратную связь, а система постепенно превращала её в проверяемый продукт.</div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">02 · Постановка задачи</p><h2>Как правильно начать</h2></div><span class="index">02</span></div>
+<p class="lead">Первый промпт должен назвать пользователя, рабочую боль, внешнюю систему и критерий успеха. Стек заранее выбирать необязательно.</p>
+<div class="formula"><span><b>Контекст</b>Что сейчас неудобно?</span><span><b>Пользователь</b>Кто будет работать?</span><span><b>Действие</b>Что он должен сделать?</span><span><b>Система</b>Куда уходят данные?</span><span><b>Граница</b>Что нельзя сломать?</span><span><b>Проверка</b>Как доказать успех?</span></div>
+<div class="prompt good"><pre>Мы делаем сервис для координаторов, которые оформляют гостевые пропуска.
+
+Сейчас они вручную работают в PassOffice. Нужен простой интерфейс для телефона и компьютера: пользователь входит под своим логином PassOffice, добавляет дату, место и нескольких гостей, проверяет итог и только потом создаёт реальную заявку.
+
+Сначала безопасно исследуй портал без создания пропуска. Выпиши обязательные поля, статусы и надёжный признак успешной отправки. Секреты не сохраняй и не показывай в логах.</pre></div>
+<h3>Почему это хороший старт</h3>
+<div class="grid2"><div class="card thin"><p>Есть конкретный пользователь — координатор.</p></div><div class="card thin"><p>Безопасное исследование отделено от реального действия.</p></div><div class="card thin"><p>Решение не зажато преждевременным выбором технологии.</p></div><div class="card thin"><p>Готовность определяется результатом в PassOffice.</p></div></div>
+<div class="note"><b>Не вставляйте секреты в промпт</b>Логины, пароли, API-ключи и токены передаются только через защищённые поля и конфигурацию. В примерах всегда используются заглушки.</div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">03 · Исследование</p><h2>Сначала понять PassOffice</h2></div><span class="index">03</span></div>
+<p class="lead">Автоматизировать портал только по виду формы опасно. Сначала нужно понять его контракт и независимый признак успешной операции.</p>
+<div class="flow"><span>Вход AD</span><i>→</i><span>Профиль</span><i>→</i><span>Гости</span><i>→</i><span>Черновик</span><i>→</i><span>Проверка</span><i>→</i><span>Подтверждение</span></div>
+<table><tr><th>Проверка</th><th>Что выяснили</th><th>Зачем</th></tr><tr><td>Авторизация</td><td>Active Directory</td><td>Каждый входит своим аккаунтом.</td></tr><tr><td>Поля визита</td><td>Дата и комната обязательны</td><td>Frontend и сервер валидируют одинаково.</td></tr><tr><td>Поля гостя</td><td>Фамилия, имя, отчество</td><td>Парсер не может считать неполное ФИО готовым.</td></tr><tr><td>Статусы</td><td>Черновик, согласование, согласовано, обработано</td><td>Номер ещё не означает окончательный успех.</td></tr><tr><td>Таймаут</td><td>Итог может быть неизвестен</td><td>Автоповтор способен создать дубль.</td></tr></table>
+<div class="prompt"><pre>Войди в PassOffice только для безопасного исследования. Не создавай реальную заявку.
+
+Найди:
+1. способ входа и ошибки авторизации;
+2. обязательные и необязательные поля;
+3. статусы до и после подтверждения;
+4. внешний ID;
+5. независимый признак, что операция завершилась.
+
+Верни карту процесса и отдельно перечисли неизвестные места.</pre></div>
+<div class="note"><b>Результат исследования</b>Стало понятно, что заявка создаётся цепочкой: гости → черновик → проверка → подтверждение. Именно эта цепочка легла в серверную интеграцию.</div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">04 · Продукт и UX</p><h2>От Mini App к обычному сайту</h2></div><span class="index">04</span></div>
+<p class="lead">Начали с Telegram Mini App, но до запуска изменили формат: заказчику проще получить обычную ссылку, работающую и на телефоне, и на компьютере.</p>
+<table><tr><th>Критерий</th><th>Mini App</th><th>Адаптивный сайт</th></tr><tr><td>Вход</td><td>Telegram + PassOffice</td><td>Только персональный PassOffice</td></tr><tr><td>Компьютер</td><td>Зависит от Telegram</td><td>Полноценная широкая версия</td></tr><tr><td>Телефон</td><td>Встроенный браузер</td><td>Safari/Chrome и ярлык как приложение</td></tr><tr><td>Показ заказчику</td><td>Нужно объяснять бота</td><td>Достаточно отправить ссылку</td></tr></table>
+<div class="prompt raw"><pre>«Давай сделаем версию для компьютера и версию для телефона. В итоге мы делаем не мини-апку, а просто сайт»</pre></div>
+<h3>Единый путь заявки</h3>
+<div class="arch"><div class="box"><b>Текст / голос / форма</b><small>разные способы начать</small></div><div class="arrow">→</div><div class="box"><b>Один черновик</b><small>дата · место · гости</small></div><div class="arrow">→</div><div class="box"><b>Общая проверка</b><small>одна финальная отправка</small></div></div>
+<div class="flow"><span>Детали визита</span><i>→</i><span>Посетители</span><i>→</i><span>Проверка</span><i>→</i><span>Создать</span></div>
+<div class="prompt good"><pre>Меняем формат продукта: вместо Telegram Mini App делаем обычный адаптивный сайт.
+
+Сохрани мобильный сценарий, добавь полноценную desktop-версию и персональный вход PassOffice. Свободный текст, голос и ручная форма должны собирать одну модель заявки. Перед внешним действием всегда показывай полное резюме.</pre></div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">05 · Дизайн</p><h2>Как нашли стиль</h2></div><span class="index">05</span></div>
+<p class="lead">Первые макеты не понравились. Вместо «сделай красиво» я начал давать точную обратную связь: где много воздуха, что вылезает, какой блок должен быть главным и что нельзя менять.</p>
+<div class="grid3"><div class="card"><p class="label">Оставили</p><h3>Белый фон</h3><p>Спокойный рабочий интерфейс.</p></div><div class="card"><p class="label">Оставили</p><h3>Один шрифт</h3><p>Onest, начертания 400–500.</p></div><div class="card"><p class="label">Оставили</p><h3>Синий акцент</h3><p>Только активные и системные состояния.</p></div><div class="card"><p class="label">Убрали</p><h3>Логотип</h3><p>Оставили текст CHESNIKOVA PASS.</p></div><div class="card"><p class="label">Убрали</p><h3>Тёмные заливки</h3><p>Белые кнопки с чёрным контуром.</p></div><div class="card"><p class="label">Исправили</p><h3>Плотность</h3><p>Отдельные правила для mobile и desktop.</p></div></div>
+<div class="prompt raw"><pre>«Дизайн оч плохой… пришли пять вариантов»
+«Мне нравится 1 и 8 и 9»
+«Все шрифты сделаем одного типа… интерфейс плотнее… пока без логотипа»</pre></div>
+<h3>Формула визуального комментария</h3>
+<div class="formula"><span><b>Где</b>Экран или блок</span><span><b>Проблема</b>Что именно не так</span><span><b>Цель</b>Как должно ощущаться</span><span><b>Сохранить</b>Что уже хорошо</span><span><b>Устройство</b>Телефон/desktop</span><span><b>Проверка</b>Скриншот/ширина</span></div>
+<div class="prompt good"><pre>Мобильную версию не меняй. На desktop перестрой только dashboard: три карточки статистики в одну строку, список заявок под ними. «Всего заявок» выдели толстой чёрной рамкой, остальные карточки оставь тонкими. Проверь ширины 390, 760 и 1440 px.</pre></div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">06 · Архитектура</p><h2>Frontend, сервер и безопасность</h2></div><span class="index">06</span></div>
+<div class="arch"><div class="box"><b>Браузер</b><small>HTML · CSS · JS</small></div><div class="arrow">HTTPS</div><div class="box"><b>Node.js</b><small>API · сессии · валидация</small></div><div class="arrow">API</div><div class="box"><b>PassOffice</b><small>гости · заявка · статус</small></div></div>
+<div class="arch"><div class="box"><b>Микрофон</b><small>MediaRecorder</small></div><div class="arrow">→</div><div class="box"><b>FFmpeg</b><small>Ogg Opus · 16 kHz</small></div><div class="arrow">→</div><div class="box"><b>SpeechKit</b><small>русский текст</small></div></div>
+<div class="grid2"><div class="card"><p class="label">Пароль</p><h3>Не сохраняется</h3><p>Используется только для входа в PassOffice.</p></div><div class="card"><p class="label">Cookie</p><h3>HttpOnly и Secure</h3><p>Токены портала не попадают в браузер.</p></div><div class="card"><p class="label">Запросы</p><h3>CSRF + Same Origin</h3><p>Чужой сайт не может отправить заявку.</p></div><div class="card"><p class="label">Данные</p><h3>Шифрование SQLite</h3><p>Персональные данные хранятся зашифрованно.</p></div><div class="card"><p class="label">Повтор</p><h3>Idempotency-Key</h3><p>Повторный клик не создаёт дубль.</p></div><div class="card"><p class="label">Вход</p><h3>Rate limit</h3><p>Серии неверных попыток блокируются.</p></div></div>
+<div class="status"><b>SUBMITTING</b><span>Внешняя операция началась.</span></div><div class="status"><b>VERIFIED</b><span>Получены ID и известный статус.</span></div><div class="status"><b>REJECTED</b><span>Портал явно отклонил заявку.</span></div><div class="status"><b>UNKNOWN</b><span>Результат нельзя безопасно повторять.</span></div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">07 · Интеграции</p><h2>PassOffice и голос</h2></div><span class="index">07</span></div>
+<h3>Реальная заявка PassOffice</h3>
+<div class="timeline"><div class="row"><small>01</small><b>Проверить сессию и профиль</b><span>аккаунт пользователя</span></div><div class="row"><small>02</small><b>Получить площадку и группу доступа</b><span>справочники</span></div><div class="row"><small>03</small><b>Создать каждого гостя</b><span>до 20</span></div><div class="row"><small>04</small><b>Создать черновик заявки</b><span>внешний ID</span></div><div class="row"><small>05</small><b>Запустить проверку портала</b><span>валидация</span></div><div class="row"><small>06</small><b>Подтвердить и прочитать статус</b><span>финал</span></div></div>
+<div class="prompt good"><pre>Подключи реальное создание через уже исследованный контракт PassOffice. Создавай гостей, затем черновик, запускай проверку портала и только потом подтверждай. Успехом считай только внешний ID и известный статус. Таймаут помечай как «результат неизвестен» и не повторяй автоматически.</pre></div>
+<h3>Yandex SpeechKit</h3>
+<div class="flow"><span>Запись ≤ 30 сек.</span><i>→</i><span>FFmpeg</span><i>→</i><span>SpeechKit ru-RU</span><i>→</i><span>Редактируемый текст</span></div>
+<div class="prompt raw"><pre>«Давай сделаем как у меня было в Мосфильм-боте, там был Яндекс»</pre></div>
+<div class="prompt good"><pre>Замени браузерное распознавание на Yandex SpeechKit. Ключ оставь только на сервере. Ограничь запись 30 секундами, приводи форматы к Ogg Opus через FFmpeg и вставляй результат в редактируемое поле без автоматической отправки.</pre></div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">08 · Продакшен</p><h2>GitHub, Timeweb и проверка</h2></div><span class="index">08</span></div>
+<p class="lead">GitHub Pages оставили как статический редирект. Рабочему входу, базе и SpeechKit нужен VPS, поэтому приложение запущено в Docker Compose на Timeweb, а HTTPS отдаёт Caddy.</p>
+<div class="arch"><div class="box"><b>GitHub</b><small>код и история</small></div><div class="arrow">git pull</div><div class="box"><b>Timeweb VPS</b><small>app + Caddy</small></div><div class="arrow">HTTPS</div><div class="box"><b>Пользователь</b><small>телефон/компьютер</small></div></div>
+<div class="code">git pull --ff-only origin main
+APP_VERSION=$(git rev-parse HEAD) docker compose up -d --build app
+docker compose ps
+curl -fsS https://SITE/api/health</div>
+<div class="grid2"><div class="card"><p class="label">Автотесты</p><h3>33 сценария</h3><p>Парсер, сессии, CSRF, заявки, PassOffice, голос, manifest и иконка.</p></div><div class="card"><p class="label">Smoke</p><h3>Реальная среда</h3><p>Вход, mobile, desktop, голос, внешний ID, статус и точный SHA.</p></div></div>
+<div class="status"><b>Запланировано</b><span>Есть порядок работы.</span></div><div class="status"><b>Запущено</b><span>Сборка выполняется.</span></div><div class="status"><b>Выполнено</b><span>Команда завершилась.</span></div><div class="status"><b>Проверено</b><span>Конечный результат подтверждён.</span></div>
+<div class="prompt good"><pre>Разверни только CHESNIKOVA PASS на существующем VPS, не затрагивая соседние контейнеры. После сборки проверь docker compose, HTTPS, /api/health и точное совпадение SHA локально, в GitHub и продакшене. Не называй релиз завершённым раньше этих проверок.</pre></div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">09 · Библиотека</p><h2>Промпты для повторения</h2></div><span class="index">09</span></div>
+<div class="prompt"><pre>Исследуй аналоги гостевых пропусков. Официальные продукты используй для UX-паттернов, Pinterest/Behance — только для визуальных референсов. Сравни главное действие, плотность, навигацию, статусы и подтверждение успеха. Предложи 5 направлений, не меняя рабочий код.</pre></div>
+<div class="prompt"><pre>Проведи UX-аудит меню и переходов. Проверь: где пользователь находится, как возвращается назад, можно ли потерять черновик, соответствует ли название кнопки результату и есть ли финальная проверка перед внешним действием.</pre></div>
+<div class="prompt"><pre>Вот скриншот мобильной версии. Контент прижат к краям. Добавь равные безопасные отступы, но не уменьши зоны нажатия и не сломай горизонтальные фильтры. Desktop не меняй.</pre></div>
+<div class="prompt"><pre>Диагностируй проблему, но пока не исправляй. Воспроизведи ошибку, найди корневую причину и приведи доказательство: файл, ответ API, лог или несовпадающий SHA.</pre></div>
+<div class="prompt"><pre>На продакшене визуально ничего не изменилось. Проверь commit в GitHub, SHA контейнера, index.html, версии CSS/JS и фактические файлы по HTTPS. Не утверждай «это кэш», пока не сравнишь содержимое.</pre></div>
+<h3>Универсальный шаблон</h3>
+<div class="code">Контекст: где мы сейчас.
+Цель: какой результат нужен.
+Граница: что нельзя менять или делать.
+Данные: ссылки, скриншоты, примеры.
+Критерий: как проверить готовность.
+Формат: что должно быть в ответе.</div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">10 · Переделки</p><h2>Что не сработало сразу</h2></div><span class="index">10</span></div>
+<div class="grid2"><div class="card"><p class="label">01</p><h3>Общий первый дизайн</h3><p>Финальный стиль появился после конкретных комментариев.</p></div><div class="card"><p class="label">02</p><h3>Слишком много воздуха</h3><p>Прототип был похож на презентацию, а не инструмент.</p></div><div class="card"><p class="label">03</p><h3>Лишний логотип</h3><p>Графический знак убрали, оставили название.</p></div><div class="card"><p class="label">04</p><h3>Неверный KPI</h3><p>«Ожидается завтра» заменили статусами портала.</p></div><div class="card"><p class="label">05</p><h3>GitHub Pages как сервер</h3><p>Статика не может безопасно хранить секреты.</p></div><div class="card"><p class="label">06</p><h3>Браузерная речь</h3><p>Её заменили единым серверным SpeechKit.</p></div><div class="card"><p class="label">07</p><h3>Старая метка SHA</h3><p>Код обновился, APP_VERSION — нет. Проверили файлы и пересобрали.</p></div><div class="card"><p class="label">Вывод</p><h3>Переделка — это нормально</h3><p>Важно сохранять работающие части и менять доказанную проблему.</p></div></div>
+<div class="note"><b>Самый полезный приём</b>В каждом новом промпте писать, что именно нужно сохранить. Это защищает уже принятые решения от случайной переработки.</div>
+</section>
+
+<section class="page">
+<div class="title-row"><div><p class="eyebrow">11 · Рецепт</p><h2>Как собрать похожий сервис</h2></div><span class="index">11</span></div>
+<div class="timeline"><div class="row"><small>01</small><b>Описать пользователя и критерий успеха</b><span>бриф</span></div><div class="row"><small>02</small><b>Безопасно исследовать внешний процесс</b><span>карта</span></div><div class="row"><small>03</small><b>Собрать интерфейс с заглушкой</b><span>mobile first</span></div><div class="row"><small>04</small><b>Проверить UX на реальных примерах</b><span>черновик</span></div><div class="row"><small>05</small><b>Добавить сервер, сессии и хранилище</b><span>security</span></div><div class="row"><small>06</small><b>Подключить внешний контракт</b><span>demo</span></div><div class="row"><small>07</small><b>Провести контролируемый реальный тест</b><span>ID + статус</span></div><div class="row"><small>08</small><b>Развернуть VPS и проверить SHA</b><span>release</span></div><div class="row"><small>09</small><b>Показать заказчику и собрать feedback</b><span>скриншоты</span></div><div class="row"><small>10</small><b>Выпустить production и инструкцию</b><span>verified</span></div></div>
+<h3 style="margin-top:5mm">Карта текущего проекта</h3>
+<div class="code">index.html / styles.css / app.js    интерфейс
+free-text-parser.js                 свободный текст
+voice-recorder.js                   запись голоса
+server/http.js                      API и защита
+server/integrations/                PassOffice + SpeechKit
+server/service/                     идемпотентные заявки
+server/storage/                     SQLite + шифрование
+test/                               33 проверки
+Dockerfile / compose.yaml / Caddy   продакшен</div>
+<div class="grid2"><a class="card" href="https://github.com/naztutnet/chesnikova-pass" style="text-decoration:none"><p class="label">Код</p><h3>GitHub ↗</h3><p>github.com/naztutnet/chesnikova-pass</p></a><a class="card" href="https://chesnikova-pass.201-24-48-93.sslip.io/" style="text-decoration:none"><p class="label">Сайт</p><h3>Production ↗</h3><p>Открыть CHESNIKOVA PASS</p></a></div>
+<div class="note"><b>Итог</b>Сначала понять реальную операцию, затем сократить её до ясного пользовательского пути и только после этого автоматизировать.</div>
+</section>
+</body>
+</html>
+
