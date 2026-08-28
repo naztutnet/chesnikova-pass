@@ -7,7 +7,7 @@ export class RequestService {
     this.provider = provider;
   }
 
-  async create({ userId, idempotencyKey, input }) {
+  async create({ userId, portalSession = null, idempotencyKey, input }) {
     if (!idempotencyKey || idempotencyKey.length > 160) throw new ApiError(400, "IDEMPOTENCY_KEY_REQUIRED", "Передайте корректный Idempotency-Key");
     const request = validateCreateRequest(input);
     const requestHash = hashRequest(request);
@@ -17,7 +17,7 @@ export class RequestService {
     if (claim.kind === "REPLAY") return { request: claim.request, replayed: true };
 
     try {
-      const providerResult = validateProviderResult(await this.provider.submit(request, { requestId: claim.request.id }));
+      const providerResult = validateProviderResult(await this.provider.submit(request, { requestId: claim.request.id, userId, portalSession }));
       const completed = this.store.complete(claim.request.id, userId, { status: REQUEST_STATUSES.VERIFIED, ...providerResult });
       return { request: completed, replayed: false };
     } catch (error) {

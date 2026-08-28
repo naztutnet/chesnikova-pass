@@ -56,12 +56,12 @@ export class RequestStore {
 
   getByIdForUser(id, userId) {
     const row = this.db.prepare(`SELECT * FROM requests WHERE id = ? AND telegram_user_id = ?`).get(id, userId);
-    return row ? mapRow(row) : null;
+    return row ? mapRow(row, this.cipher) : null;
   }
 
   getByIdempotencyKey(userId, key) {
     const row = this.db.prepare(`SELECT * FROM requests WHERE telegram_user_id = ? AND idempotency_key = ?`).get(userId, key);
-    return row ? mapRow(row) : null;
+    return row ? mapRow(row, this.cipher) : null;
   }
 
   listByUser(userId, { page, pageSize, status = null }) {
@@ -70,7 +70,7 @@ export class RequestStore {
     const args = status ? [userId, status] : [userId];
     const totalItems = Number(this.db.prepare(`SELECT COUNT(*) AS count FROM requests WHERE ${where}`).get(...args).count);
     const rows = this.db.prepare(`SELECT * FROM requests WHERE ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...args, pageSize, offset);
-    return { data: rows.map(mapRow), pagination: { page, pageSize, totalItems, totalPages: Math.ceil(totalItems / pageSize) } };
+    return { data: rows.map((row) => mapRow(row, this.cipher)), pagination: { page, pageSize, totalItems, totalPages: Math.ceil(totalItems / pageSize) } };
   }
 
   close() { this.db.close(); }
@@ -82,7 +82,7 @@ function isUniqueConstraint(error) {
     || /UNIQUE constraint failed/i.test(String(error?.message || ""));
 }
 
-function mapRow(row) {
+function mapRow(row, cipher) {
   return {
     id: row.id,
     userId: row.telegram_user_id,
@@ -91,6 +91,7 @@ function mapRow(row) {
     status: row.status,
     externalId: row.external_id,
     externalStatus: row.external_status,
+    payload: cipher.decrypt(row.encrypted_payload),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

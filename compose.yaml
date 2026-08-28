@@ -1,11 +1,36 @@
 name: chesnikova-pass
 
 services:
-  web:
+  app:
     build:
       context: .
+      args:
+        APP_VERSION: ${APP_VERSION:-dev}
+    container_name: chesnikova-pass-app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4173
+      DATABASE_PATH: /app/data/chesnikova-pass.sqlite
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:?Set DATA_ENCRYPTION_KEY in .env}
+      PASSOFFICE_BASE_URL: ${PASSOFFICE_BASE_URL:-https://po.amediastudio.ru/}
+      PASSOFFICE_PROVIDER: ${PASSOFFICE_PROVIDER:-demo}
+      SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-43200}
+      COOKIE_SECURE: "true"
+      ALLOW_DEMO_AUTH: "false"
+    volumes:
+      - app_data:/app/data
+    mem_limit: 256m
+    cpus: 0.75
+
+  web:
+    image: caddy:2.10.2-alpine
     container_name: chesnikova-pass-web
     restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
     environment:
       SITE_ADDRESS: ${SITE_ADDRESS:-chesnikova-pass.201-24-48-93.sslip.io}
     ports:
@@ -13,12 +38,19 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     mem_limit: 160m
     cpus: 0.50
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
 
 volumes:
+  app_data:
   caddy_data:
   caddy_config:
-

@@ -32,27 +32,30 @@ function normalizeVisitor(value = {}) {
   };
 }
 
-function readDraft() {
-  try {
-    const saved = JSON.parse(localStorage.getItem("chesnikova-pass-draft") || localStorage.getItem("amedia-pass-draft")) || {};
-    const visitors = Array.isArray(saved.visitors) && saved.visitors.length
-      ? saved.visitors.map(normalizeVisitor)
-      : [normalizeVisitor(saved)];
-    return { ...freshDraft(), ...saved, visitors };
-  } catch {
-    return freshDraft();
-  }
-}
+function readDraft() { return freshDraft(); }
 
-const previewView = new URLSearchParams(window.location.search).get("view");
+try {
+  localStorage.removeItem("chesnikova-pass-draft");
+  localStorage.removeItem("amedia-pass-draft");
+} catch {}
+
+const previewView = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+  ? new URLSearchParams(window.location.search).get("view")
+  : null;
 const state = {
-  screen: previewView === "wizard" ? "wizard" : previewView === "new" ? "new" : previewView === "text" ? "free-text" : previewView === "profile" ? "profile" : "home",
+  screen: "loading",
   step: 1,
   draft: readDraft(),
   freeText: "",
   parseResult: null,
   requestStatus: "all",
   requestDate: "all",
+  booting: true,
+  session: null,
+  requests: [],
+  lastResult: null,
+  submitting: false,
+  loginError: "",
 };
 
 const app = document.querySelector("#app");
@@ -64,8 +67,27 @@ const avatar = document.querySelector(".avatar");
 
 function haptic() {}
 
-function saveDraft() {
-  localStorage.setItem("chesnikova-pass-draft", JSON.stringify(state.draft));
+function saveDraft() {}
+
+async function apiRequest(path, options = {}) {
+  const headers = { Accept: "application/json", ...(options.headers || {}) };
+  if (options.body !== undefined) headers["Content-Type"] = "application/json";
+  if (options.method && options.method !== "GET" && state.session?.csrfToken) headers["X-CSRF-Token"] = state.session.csrfToken;
+  const response = await fetch(path, {
+    ...options,
+    credentials: "same-origin",
+    headers,
+    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(payload?.error?.message || "Не удалось выполнить запрос");
+    error.status = response.status;
+    error.code = payload?.error?.code;
+    error.details = payload?.error?.details;
+    throw error;
+  }
+  return payload;
 }
 
 function escapeHtml(value = "") {
@@ -124,10 +146,14 @@ function shortDate(value) {
 }
 
 function dashboardRequests() {
-  const requests = [
-    { id: "agreed", date: isoDateWithOffset(1), name: "Елена Воронова", place: "Павильон 4", type: "разовый пропуск", status: "Согласовано", statusKey: "agreed" },
-    { id: "processed", date: isoDateWithOffset(0), name: "Артём Каспер", place: "БП — 10", type: "разовый пропуск", status: "Обработано", statusKey: "processed" },
-  ];
+  const requests = state.requests.map((request) => ({
+    id: request.id,
+    date: request.visitDate || request.createdAt?.slice(0, 10) || isoDateWithOffset(0),
+    name: request.primaryVisitor || "Посетитель",
+    place: request.room || "Место не указано",
+    type: guestCountLabel(request.visitorCount || 1),
+    ...requestPresentation(request),
+  }));
   if (hasDraftData()) {
     requests.unshift({
       id: "draft",
@@ -141,6 +167,13 @@ function dashboardRequests() {
     });
   }
   return requests;
+}
+
+function requestPresentation(request) {
+  if (request.status === "VERIFIED") return { status: request.externalStatus === "DEMO_VERIFIED" ? "Демо" : "Согласовано", statusKey: "agreed" };
+  if (request.status === "REJECTED") return { status: "Отклонено", statusKey: "rejected" };
+  if (request.status === "UNKNOWN") return { status: "Нужна проверка", statusKey: "unknown" };
+  return { status: "Отправляется", statusKey: "processed" };
 }
 
 function filterChip(label, value, current, kind) {
@@ -210,6 +243,27 @@ function renderHome() {
         </div>
       </section>
     </section>`;
+}
+
+function renderLoading() {
+  app.innerHTML = `<section class="login-screen"><div class="login-card"><p class="overline">CHESNIKOVA PASS</p><h1>Подключаемся</h1><p>Проверяем защищённую сессию PassOffice…</p></div></section>`;
+}
+
+function renderLogin() {
+  app.innerHTML = `<section class="login-screen">
+    <form class="login-card" data-login-form>
+      <p class="overline">CHESNIKOVA PASS</p>
+      <h1>Вход в бюро пропусков</h1>
+      <p>Используйте свой логин и пароль от PassOffice. Пароль проверяется на сервере портала и не сохраняется.</p>
+      <div class="fields login-fields">
+        <div class="field"><label for="portal-login">Логин</label><input id="portal-login" name="login" autocomplete="username" required maxlength="256" /></div>
+        <div class="field"><label for="portal-password">Пароль</label><input id="portal-password" name="password" type="password" autocomplete="current-password" required maxlength="1024" /></div>
+      </div>
+      ${state.loginError ? `<p class="login-error" role="alert">${escapeHtml(state.loginError)}</p>` : ""}
+      <button class="button button-primary" type="submit">Войти</button>
+      <small class="login-note">Авторизация Active Directory · защищённое соединение</small>
+    </form>
+  </section>`;
 }
 
 function renderNewRequest() {
@@ -327,17 +381,20 @@ function renderReview() {
   app.innerHTML = wizardHeader(3, "Проверка заявки", "Сверьте данные перед отправкой в PassOffice") + `
     <section class="review-section"><header><div><span>01</span><h2>Детали визита</h2></div><button type="button" data-action="edit-visit" aria-label="Изменить детали визита">Изменить</button></header><div class="summary-body">${summary("Тип", "Разовый пропуск")}${summary("Дата", formatDate(d.date, true))}${summary("Куда", d.room || "Не указано")}${summary("Организация", d.organization || "Не указана")}</div></section>
     <section class="review-section"><header><div><span>02</span><h2>Посетители · ${d.visitors.length}</h2></div><button type="button" data-action="edit-visitors" aria-label="Изменить посетителей">Изменить</button></header><div class="review-visitors">${d.visitors.map((visitor, index) => `<article><span>${String(index + 1).padStart(2, "0")}</span><div><b>${escapeHtml(visitorName(visitor) || `Гость ${index + 1}`)}</b><small>${visitor.birthDate ? escapeHtml(formatDate(visitor.birthDate, true)) : "Дата рождения не указана"}${visitor.foreignCitizen ? " · иностранный гражданин" : ""}</small></div></article>`).join("")}</div></section>
-    <div class="notice"><i></i><p><b>Демо-режим</b><br />Кнопка ниже покажет результат, но не создаст заявку в PassOffice.</p></div>
-    <div class="submission-note"><b>Что произойдёт дальше</b><span>В рабочей версии заявка будет отправлена в обработку, затем мы повторно проверим её номер и статус.</span></div>
-    <div class="actions"><button class="button button-primary" type="button" data-action="demo-submit">Создать демо-заявку</button><button class="button button-secondary" type="button" data-action="back">Вернуться к посетителям</button></div>`;
+    <div class="submission-note"><b>Что произойдёт дальше</b><span>Заявка будет отправлена от вашего аккаунта, после чего мы покажем её номер и проверенный статус.</span></div>
+    <div class="actions"><button class="button button-primary" type="button" data-action="submit-request" ${state.submitting ? "disabled" : ""}>${state.submitting ? "Отправляем…" : "Создать заявку"}</button><button class="button button-secondary" type="button" data-action="back">Вернуться к посетителям</button></div>`;
 }
 
 function renderResult() {
-  app.innerHTML = `<section class="result-screen"><div class="result-mark" aria-hidden="true">✓</div><p class="overline">Демо · не отправлено</p><h1>Заявка собрана</h1><p>Все этапы пройдены. После подключения PassOffice здесь появятся проверенный номер заявки и её фактический статус.</p><article class="result-card"><span>${escapeHtml(formatDate(state.draft.date, true))}</span><b>${escapeHtml(visitorName() || "Новый посетитель")}</b><small>${escapeHtml(state.draft.room || "Комната или павильон")} · ${guestCountLabel(state.draft.visitors.length)}</small></article><button class="button button-primary" type="button" data-action="home">Вернуться к заявкам</button></section>`;
+  const result = state.lastResult;
+  const submitted = result?.draft || freshDraft();
+  const isDemo = result?.externalStatus === "DEMO_VERIFIED";
+  app.innerHTML = `<section class="result-screen"><div class="result-mark" aria-hidden="true">✓</div><p class="overline">${isDemo ? "Демо · портал не изменён" : "PassOffice · проверено"}</p><h1>${isDemo ? "Заявка собрана" : "Заявка создана"}</h1><p>${isDemo ? "Сценарий работает в демонстрационном режиме. Реальная запись в PassOffice не создавалась." : `Номер заявки: ${escapeHtml(result?.externalId || "—")}`}</p><article class="result-card"><span>${escapeHtml(formatDate(submitted.date, true))}</span><b>${escapeHtml(visitorName(submitted.visitors?.[0]) || "Новый посетитель")}</b><small>${escapeHtml(submitted.room || "Комната или павильон")} · ${guestCountLabel(submitted.visitors?.length || 1)}</small></article><button class="button button-primary" type="button" data-action="home">Вернуться к заявкам</button></section>`;
 }
 
 function renderProfile() {
-  app.innerHTML = `<section class="profile-screen"><p class="overline">Профиль</p><h1>Координатор</h1><div class="profile-card"><span class="profile-avatar">АС</span><div><b>Александр</b><small>Координатор пропусков</small></div></div></section>`;
+  const login = state.session?.user?.login || "Пользователь";
+  app.innerHTML = `<section class="profile-screen"><p class="overline">Профиль</p><h1>Координатор</h1><div class="profile-card"><span class="profile-avatar">${escapeHtml(login.slice(0, 2).toUpperCase())}</span><div><b>${escapeHtml(login)}</b><small>Аккаунт PassOffice</small></div></div><button class="button button-secondary profile-logout" type="button" data-action="logout">Выйти</button></section>`;
 }
 
 function wizardHeader(step, title, subtitle) {
@@ -435,6 +492,17 @@ function navigateBack() {
 
 function render() {
   document.body.dataset.screen = state.screen;
+  if (state.booting) {
+    tabbar.hidden = true;
+    backButton.hidden = true;
+    return renderLoading();
+  }
+  if (!state.session) {
+    tabbar.hidden = true;
+    backButton.hidden = true;
+    return renderLogin();
+  }
+  avatar.textContent = (state.session.user?.login || "П").slice(0, 2).toUpperCase();
   tabbar.hidden = !["home", "new", "profile"].includes(state.screen);
   backButton.hidden = state.screen === "home";
   if (state.screen === "home") renderHome();
@@ -454,7 +522,7 @@ function render() {
   window.scrollTo({ top: 0 });
 }
 
-document.addEventListener("click", (event) => {
+document.addEventListener("click", async (event) => {
   const statusFilter = event.target.closest("[data-filter-status]");
   const dateFilter = event.target.closest("[data-filter-date]");
   if (statusFilter || dateFilter) {
@@ -515,7 +583,69 @@ document.addEventListener("click", (event) => {
     if (visitorName(visitor) && !window.confirm(`Удалить гостя «${visitorName(visitor)}»?`)) return;
     state.draft.visitors.splice(index, 1); saveDraft(); render(); showToast("Гость удалён"); return;
   }
-  if (action === "demo-submit") { state.screen = "result"; haptic("notification", "success"); return render(); }
+  if (action === "submit-request") {
+    if (state.submitting) return;
+    state.submitting = true;
+    render();
+    try {
+      const payload = {
+        visitDate: state.draft.date,
+        room: state.draft.room,
+        organization: state.draft.organization || null,
+        visitors: state.draft.visitors.map((visitor) => ({
+          lastName: visitor.lastName,
+          firstName: visitor.firstName,
+          middleName: visitor.middleName,
+          birthDate: visitor.birthDate || null,
+          isForeignCitizen: visitor.foreignCitizen === true,
+        })),
+      };
+      const response = await apiRequest("/api/requests", { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }, body: payload });
+      state.lastResult = { ...response.data, draft: structuredClone(state.draft) };
+      state.draft = freshDraft();
+      await loadRequests();
+      state.screen = "result";
+      haptic("notification", "success");
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      state.submitting = false;
+      render();
+    }
+    return;
+  }
+  if (action === "logout") {
+    try { await apiRequest("/api/auth/logout", { method: "POST" }); } catch {}
+    state.session = null;
+    state.requests = [];
+    state.draft = freshDraft();
+    state.screen = "login";
+    return render();
+  }
+});
+
+document.addEventListener("submit", async (event) => {
+  const form = event.target.closest("[data-login-form]");
+  if (!form) return;
+  event.preventDefault();
+  const button = form.querySelector("button[type='submit']");
+  const data = new FormData(form);
+  state.loginError = "";
+  button.disabled = true;
+  button.textContent = "Входим…";
+  try {
+    const response = await apiRequest("/api/auth/login", { method: "POST", body: { login: data.get("login"), password: data.get("password") } });
+    state.session = response.data;
+    state.screen = previewView === "wizard" ? "wizard" : previewView === "new" ? "new" : previewView === "text" ? "free-text" : previewView === "profile" ? "profile" : "home";
+    await loadRequests();
+    render();
+  } catch (error) {
+    state.loginError = error.message;
+    render();
+    document.querySelector("#portal-login")?.focus();
+  } finally {
+    data.set("password", "");
+  }
 });
 
 document.addEventListener("input", (event) => {
@@ -541,4 +671,26 @@ backButton.addEventListener("click", navigateBack);
 brandLink.addEventListener("click", (event) => { event.preventDefault(); syncInputs(); goHome(); });
 avatar.addEventListener("click", () => { syncInputs(); state.screen = "profile"; render(); });
 
-render();
+async function loadRequests() {
+  const response = await apiRequest("/api/requests?page=1&pageSize=100");
+  state.requests = response.data || [];
+}
+
+async function bootstrap() {
+  render();
+  try {
+    const response = await apiRequest("/api/session");
+    state.session = response.data;
+    await loadRequests();
+    state.screen = previewView === "wizard" ? "wizard" : previewView === "new" ? "new" : previewView === "text" ? "free-text" : previewView === "profile" ? "profile" : "home";
+  } catch (error) {
+    if (error.status !== 401) state.loginError = "Сервис временно недоступен";
+    state.session = null;
+    state.screen = "login";
+  } finally {
+    state.booting = false;
+    render();
+  }
+}
+
+bootstrap();
