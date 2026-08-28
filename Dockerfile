@@ -12,7 +12,7 @@ ENV NODE_ENV=production \
 COPY package.json ./
 RUN apk add --no-cache ffmpeg
 
-COPY index.html styles.css app.js free-text-parser.js voice-recorder.js ./
+COPY index.html styles.css app.js free-text-parser.js voice-recorder.js app.webmanifest apple-touch-icon.png ./
 COPY server ./server
 
 RUN mkdir -p /app/data && chown -R node:node /app

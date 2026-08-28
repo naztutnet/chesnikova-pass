@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "CHESNIKOVA PASS",
+  "short_name": "CHESNIKOVA PASS",
+  "description": "Оформление и проверка гостевых пропусков",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -11,15 +11,51 @@
   --success: #2f9f6a;
   --safe-top: max(12px, env(safe-area-inset-top));
   --safe-bottom: max(12px, env(safe-area-inset-bottom));
+  --motion-fast: 140ms;
+  --motion-base: 240ms;
+  --motion-view: 360ms;
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-standard: cubic-bezier(.2, 0, 0, 1);
 }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; min-height: 100%; background: #dcdcd9; }
+html { scroll-behavior: smooth; }
 body { color: var(--ink); font-family: "Onest", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
 button, input, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { color: inherit; }
+
+/* One quiet motion language: the next state settles into place, controls answer immediately. */
+#app > * {
+  animation: view-enter var(--motion-view) var(--ease-out) both;
+}
+#app > *:nth-child(2) { animation-delay: 24ms; }
+#app > *:nth-child(3) { animation-delay: 42ms; }
+#app > *:nth-child(n + 4) { animation-delay: 58ms; }
+
+button,
+a,
+input,
+textarea,
+.request-row,
+.type-card,
+.dashboard-stats article,
+.profile-card,
+.review-section,
+.visitor-card,
+.speech-dot {
+  transition:
+    color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-base) var(--ease-out),
+    transform var(--motion-base) var(--ease-out),
+    opacity var(--motion-fast) linear;
+}
+
+button:active:not(:disabled) { transform: translateY(1px) scale(.992); transition-duration: 70ms; }
 
 .app-shell {
   position: relative;
@@ -293,6 +329,7 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
 .request-guide summary span { color: var(--accent); font-size: 18px; font-weight: 400; transition: transform .18s ease; }
 .request-guide[open] summary span { transform: rotate(45deg); }
 .request-guide .help-list { margin-top: 0; border-top: 0; }
+.request-guide[open] .help-list { animation: details-enter var(--motion-base) var(--ease-out) both; }
 
 .profile-screen { padding-top: 14px; }
 .profile-card { display: flex; align-items: center; gap: 12px; margin-top: 24px; padding: 15px; border: 1px solid var(--line); border-radius: 14px; background: white; }
@@ -327,6 +364,26 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
 .toast { position: fixed; z-index: 40; left: 50%; bottom: 94px; transform: translate(-50%,12px); width: min(calc(100% - 36px),520px); padding: 13px 15px; border-radius: 12px; opacity: 0; pointer-events: none; color: white; background: rgba(16,17,18,.94); font-size: 11px; transition: .18s ease; }
 .toast.visible { opacity: 1; transform: translate(-50%,0); }
 :focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 40%, transparent); outline-offset: 2px; }
+
+@keyframes view-enter {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes details-enter {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover,
+  .primary-action:hover,
+  .type-card:hover,
+  button.request-row:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(21,21,21,.07); }
+  .filter-chip:hover,
+  .tab:hover { border-color: var(--ink); color: var(--ink); }
+  button.request-row:hover { background: #fafafa; }
+}
 
 @media (max-width: 380px) {
   .wizard-head h1, .help-screen h1, .result-screen h1, .new-request-screen h1, .profile-screen > h1, .free-text-screen h1, .parse-preview-screen h1 { font-size: 33px; }
@@ -741,6 +798,7 @@ body[data-screen="login"] main { display: grid; min-height: 100dvh; padding: 18p
 }
 
 @media (max-width: 759px) {
+  body { overscroll-behavior-y: none; }
   .topbar { padding-right: 18px; padding-left: 18px; }
   main { padding-right: 18px; padding-left: 18px; }
   .request-filters { display: grid; justify-content: stretch; }
@@ -749,5 +807,5 @@ body[data-screen="login"] main { display: grid; min-height: 100dvh; padding: 18p
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-delay: 0ms !important; }
 }

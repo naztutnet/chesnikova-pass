@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>CHESNIKOVA PASS — инструкция пользователя</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 12mm 13mm 14mm;
+      @bottom-left { content: "CHESNIKOVA PASS"; color: #777; font: 8pt Arial, sans-serif; letter-spacing: .08em; }
+      @bottom-right { content: counter(page) " / " counter(pages); color: #777; font: 8pt Arial, sans-serif; }
+    }
+    :root { --ink:#151515; --blue:#245dff; --muted:#67696d; --line:#cfd0d2; --soft:#f5f5f3; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; color: var(--ink); font-family: Arial, Helvetica, sans-serif; font-size: 10.6pt; line-height: 1.42; }
+    body { background: #fff; }
+    .page { break-after: page; min-height: 260mm; position: relative; }
+    .page:last-child { break-after: auto; }
+    .eyebrow { margin: 0 0 7mm; color: var(--blue); font-size: 8.5pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 155mm; margin-bottom: 7mm; font-size: 35pt; font-weight: 500; line-height: .98; letter-spacing: -.045em; }
+    h2 { margin-bottom: 5mm; font-size: 24pt; font-weight: 500; line-height: 1.03; letter-spacing: -.035em; }
+    h3 { margin-bottom: 2mm; font-size: 12pt; font-weight: 600; }
+    p { margin-bottom: 4mm; }
+    a { color: inherit; text-decoration-color: var(--blue); text-underline-offset: 2px; }
+    .lead { max-width: 145mm; color: var(--muted); font-size: 13pt; line-height: 1.48; }
+    .rule { height: 1px; margin: 7mm 0; background: var(--line); }
+    .link-card { display: block; margin-top: 12mm; padding: 6mm; border: 1.4pt solid var(--ink); border-radius: 5mm; text-decoration: none; }
+    .link-card small { display:block; margin-bottom: 2mm; color: var(--muted); font-size: 8.5pt; }
+    .link-card b { font-size: 14pt; font-weight: 500; }
+    .link-card i { float: right; color: var(--blue); font-style: normal; font-size: 18pt; }
+    .cover-mark { display: grid; place-items: center; width: 32mm; height: 32mm; margin-top: 22mm; border: 1.4pt solid var(--ink); border-radius: 8mm; font-size: 21pt; font-weight: 500; }
+    .cover-mark::before { content:""; position:absolute; width:3mm; height:3mm; margin: -22mm 0 0 -22mm; border-radius:50%; background:var(--blue); }
+    .cover-meta { position: absolute; right: 0; bottom: 12mm; left: 0; display:flex; justify-content:space-between; padding-top:4mm; border-top:1px solid var(--line); color:var(--muted); font-size:8.5pt; }
+    .steps { display: grid; gap: 3mm; margin-top: 7mm; }
+    .step { display:grid; grid-template-columns:13mm 1fr; gap:4mm; padding:5mm; border:1px solid var(--line); border-radius:4mm; break-inside:avoid; }
+    .step-no { display:grid; place-items:center; width:11mm; height:11mm; border:1px solid var(--ink); border-radius:50%; color:var(--blue); font-size:9pt; font-weight:700; }
+    .step p { margin:1.5mm 0 0; color:var(--muted); }
+    .note { margin-top:5mm; padding:4mm 5mm; border-left:2pt solid var(--blue); background:var(--soft); }
+    .note b { display:block; margin-bottom:1mm; }
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:6mm; }
+    .panel { padding:5mm; border:1px solid var(--line); border-radius:4mm; break-inside:avoid; }
+    .panel p:last-child { margin-bottom:0; }
+    .panel-label { margin-bottom:3mm; color:var(--blue); font-size:8pt; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+    .ui-window { overflow:hidden; margin-top:7mm; border:1px solid var(--ink); border-radius:5mm; }
+    .ui-bar { display:flex; align-items:center; justify-content:space-between; height:12mm; padding:0 4mm; border-bottom:1px solid var(--line); font-size:8pt; letter-spacing:.08em; }
+    .ui-body { display:grid; grid-template-columns:35mm 1fr; min-height:75mm; }
+    .ui-nav { padding:5mm 3mm; border-right:1px solid var(--line); }
+    .ui-nav span { display:block; margin-bottom:2.5mm; padding:3mm; border-radius:2.5mm; color:var(--muted); }
+    .ui-nav span.active { border:1px solid var(--ink); color:var(--ink); }
+    .ui-content { padding:7mm; }
+    .ui-content h3 { font-size:18pt; font-weight:500; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:2mm; }
+    .stat { min-height:20mm; padding:3mm; border:1px solid var(--line); border-radius:3mm; }
+    .stat:first-child { border-color:var(--ink); border-width:1.4pt; }
+    .stat small { display:block; color:var(--muted); }
+    .stat b { display:block; margin-top:3mm; font-size:16pt; font-weight:500; }
+    .phone-wrap { display:grid; grid-template-columns:58mm 1fr; gap:10mm; align-items:start; margin-top:5mm; }
+    .phone { width:58mm; min-height:123mm; padding:4mm; border:1.5pt solid var(--ink); border-radius:10mm; }
+    .phone-top { width:18mm; height:2.5mm; margin:0 auto 6mm; border-radius:2mm; background:var(--ink); }
+    .phone h3 { font-size:19pt; font-weight:500; }
+    .phone-card { margin:3mm 0; padding:3mm; border:1px solid var(--line); border-radius:3mm; }
+    .phone-card.primary { border:1.4pt solid var(--ink); }
+    .phone-card small { color:var(--muted); }
+    .phone-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:1mm; margin-top:7mm; padding-top:3mm; border-top:1px solid var(--line); color:var(--muted); font-size:7.5pt; text-align:center; }
+    .phone-tabs b { color:var(--ink); font-weight:500; }
+    .bullets { margin:0; padding-left:5mm; }
+    .bullets li { margin-bottom:3mm; padding-left:1mm; }
+    .flow { display:flex; align-items:center; gap:2mm; margin:6mm 0; }
+    .flow span { flex:1; padding:4mm 2mm; border:1px solid var(--line); border-radius:3mm; text-align:center; }
+    .flow i { color:var(--blue); font-style:normal; }
+    .choice { margin-bottom:3mm; padding:4mm; border:1px solid var(--line); border-radius:3.5mm; }
+    .choice b { display:block; margin-bottom:1mm; }
+    .choice span { color:var(--muted); }
+    .iphone-sequence { display:grid; grid-template-columns:repeat(3,1fr); gap:3mm; margin-top:6mm; }
+    .iphone-step { min-height:56mm; padding:4mm; border:1px solid var(--line); border-radius:4mm; }
+    .iphone-step b { display:block; margin:5mm 0 2mm; font-size:12pt; }
+    .iphone-step p { color:var(--muted); font-size:9pt; }
+    .symbol { display:grid; place-items:center; width:11mm; height:11mm; border:1px solid var(--ink); border-radius:3mm; color:var(--blue); font-size:15pt; }
+    .checklist { margin:5mm 0 0; padding:0; list-style:none; }
+    .checklist li { position:relative; margin-bottom:3mm; padding-left:7mm; }
+    .checklist li::before { content:"✓"; position:absolute; left:0; color:var(--blue); font-weight:700; }
+    .small { color:var(--muted); font-size:8.5pt; }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <p class="eyebrow">Инструкция пользователя · веб-версия</p>
+    <h1>CHESNIKOVA<br />PASS</h1>
+    <p class="lead">Оформление гостевых пропусков с компьютера и телефона — через один сайт, с единым личным кабинетом PassOffice.</p>
+    <div class="cover-mark">CP</div>
+    <a class="link-card" href="https://chesnikova-pass.201-24-48-93.sslip.io/">
+      <i>↗</i><small>Открыть приложение</small><b>chesnikova-pass.201-24-48-93.sslip.io</b>
+    </a>
+    <div class="cover-meta"><span>Версия 1.0</span><span>28 августа 2026</span></div>
+  </section>
+
+  <section class="page">
+    <p class="eyebrow">01 · Быстрый старт</p>
+    <h2>Начните за минуту</h2>
+    <p class="lead">На компьютере и телефоне порядок одинаковый. Интерфейс сам перестраивается под размер экрана.</p>
+    <div class="steps">
+      <div class="step"><span class="step-no">1</span><div><h3>Откройте сайт</h3><p>Перейдите по кликабельной ссылке: <a href="https://chesnikova-pass.201-24-48-93.sslip.io/">CHESNIKOVA PASS</a>.</p></div></div>
+      <div class="step"><span class="step-no">2</span><div><h3>Войдите</h3><p>Введите собственный логин и пароль от портала PassOffice.</p></div></div>
+      <div class="step"><span class="step-no">3</span><div><h3>Нажмите «Новая»</h3><p>Выберите свободный текст, голосовой ввод или ручное заполнение по шагам.</p></div></div>
+      <div class="step"><span class="step-no">4</span><div><h3>Проверьте данные</h3><p>Сверьте дату, комнату или павильон и ФИО каждого гостя.</p></div></div>
+      <div class="step"><span class="step-no">5</span><div><h3>Создайте заявку</h3><p>Только кнопка «Создать заявку» отправляет данные в PassOffice.</p></div></div>
+    </div>
+    <div class="note"><b>Важно</b>До последнего шага вы работаете с редактируемым черновиком. Проверьте ФИО и дату перед отправкой.</div>
+  </section>
+
+  <section class="page">
+    <p class="eyebrow">02 · Компьютер</p>
+    <h2>Работа на большом экране</h2>
+    <p class="lead">На компьютере основные разделы находятся слева, а заявки и формы открываются в рабочей области справа.</p>
+    <div class="ui-window">
+      <div class="ui-bar"><b>CHESNIKOVA PASS</b><span>ПРОФИЛЬ</span></div>
+      <div class="ui-body">
+        <div class="ui-nav"><span class="active">＋ Новая</span><span>▤ Заявки</span><span>◎ Профиль</span></div>
+        <div class="ui-content"><h3>Заявки</h3><div class="stats"><div class="stat"><small>Всего заявок</small><b>12</b></div><div class="stat"><small>Согласовано</small><b>9</b></div><div class="stat"><small>Черновики</small><b>3</b></div></div></div>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top:7mm">
+      <div class="panel"><p class="panel-label">Навигация</p><h3>Меню слева</h3><p>«Заявки» показывает список и фильтры. «Новая» запускает оформление. «Профиль» показывает текущий аккаунт и кнопку выхода.</p></div>
+      <div class="panel"><p class="panel-label">Список</p><h3>Фильтры и статусы</h3><p>Фильтруйте заявки по статусу и дате. Нажмите на черновик, чтобы продолжить заполнение.</p></div>
+    </div>
+    <div class="note"><b>Первый вход на новом компьютере</b>Нужно снова ввести данные PassOffice. Не передавайте свой пароль другим пользователям.</div>
+  </section>
+
+  <section class="page">
+    <p class="eyebrow">03 · Телефон</p>
+    <h2>Мобильная версия</h2>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-top"></div>
+        <h3>Заявки</h3>
+        <div class="phone-card primary"><small>Всего заявок</small><br /><b>12</b></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2mm"><div class="phone-card"><small>Согласовано</small><br /><b>9</b></div><div class="phone-card"><small>Черновики</small><br /><b>3</b></div></div>
+        <div class="phone-card"><small>29 АВГ</small><br /><b>Иванов Иван Иванович</b></div>
+        <div class="phone-tabs"><b>▤<br />Заявки</b><span>＋<br />Новая</span><span>◎<br />Профиль</span></div>
+      </div>
+      <div>
+        <p class="lead">На телефоне меню закреплено снизу: до каждого раздела можно дотянуться большим пальцем.</p>
+        <ul class="bullets">
+          <li><b>Заявки</b> — список, статусы и фильтры.</li>
+          <li><b>Новая</b> — создание гостевого пропуска.</li>
+          <li><b>Профиль</b> — текущий аккаунт и выход.</li>
+          <li>Горизонтальные фильтры можно прокручивать пальцем.</li>
+          <li>Кнопка со стрелкой наверху возвращает на предыдущий шаг.</li>
+        </ul>
+        <div class="note"><b>Микрофон</b>При первом голосовом вводе разрешите доступ к микрофону. Запись ограничена 30 секундами.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <p class="eyebrow">04 · Новая заявка</p>
+    <h2>Три способа начать</h2>
+    <div class="choice"><b>Описать своими словами</b><span>Напишите одной фразой дату, место и гостей. Система разложит текст по полям, после чего всё можно исправить.</span></div>
+    <div class="choice"><b>Продиктовать заявку</b><span>Нажмите «Продиктовать заявку», назовите дату, место и полные ФИО. Яндекс SpeechKit превратит запись в текст — обязательно проверьте расшифровку.</span></div>
+    <div class="choice"><b>Заполнить вручную</b><span>Пройдите последовательно три шага: визит, посетители, проверка.</span></div>
+    <div class="flow"><span>Визит</span><i>→</i><span>Посетители</span><i>→</i><span>Проверка</span><i>→</i><span>PassOffice</span></div>
+    <h3>Хороший пример для текста или голоса</h3>
+    <div class="panel">«29 августа, D212. Гости: Иванов Иван Иванович и Петрова Анна Сергеевна. Организация — Киносервис».</div>
+    <div class="two-col" style="margin-top:6mm">
+      <div class="panel"><p class="panel-label">Перед отправкой</p><h3>Проверьте</h3><p>Дату посещения, точное место, фамилию, имя и отчество каждого гостя.</p></div>
+      <div class="panel"><p class="panel-label">После отправки</p><h3>Смотрите статус</h3><p>Заявка появится в общем списке. Если итог неясен, сверяйте его с PassOffice.</p></div>
+    </div>
+  </section>
+
+  <section class="page">
+    <p class="eyebrow">05 · iPhone</p>
+    <h2>Добавьте как приложение</h2>
+    <p class="lead">После установки CHESNIKOVA PASS запускается с отдельной иконки и без обычной строки браузера.</p>
+    <div class="iphone-sequence">
+      <div class="iphone-step"><span class="symbol">1</span><b>Откройте Safari</b><p>Перейдите на <a href="https://chesnikova-pass.201-24-48-93.sslip.io/">сайт CHESNIKOVA PASS</a>.</p></div>
+      <div class="iphone-step"><span class="symbol">↥</span><b>Нажмите «Поделиться»</b><p>Если кнопка скрыта, откройте меню «Ещё», затем выберите «Поделиться».</p></div>
+      <div class="iphone-step"><span class="symbol">＋</span><b>На экран «Домой»</b><p>Прокрутите список действий и выберите «На экран “Домой”».</p></div>
+      <div class="iphone-step"><span class="symbol">✓</span><b>Как веб‑приложение</b><p>Включите «Открывать как веб‑приложение».</p></div>
+      <div class="iphone-step"><span class="symbol">CP</span><b>Нажмите «Добавить»</b><p>На экране появится отдельная иконка CHESNIKOVA PASS.</p></div>
+      <div class="iphone-step"><span class="symbol">→</span><b>Войдите ещё раз</b><p>При первом запуске с иконки может потребоваться повторный вход в PassOffice.</p></div>
+    </div>
+    <div class="note"><b>Если пункта нет</b>Внизу списка действий нажмите «Изменить действия» и добавьте «На экран “Домой”».</div>
+    <p class="small" style="margin-top:5mm">Официальная справка: <a href="https://support.apple.com/en-au/guide/iphone/iphea86e5236/ios">Apple — Turn a website into an app in Safari on iPhone</a>.</p>
+  </section>
+
+  <section class="page">
+    <p class="eyebrow">06 · Android и помощь</p>
+    <h2>Ярлык на Android</h2>
+    <div class="steps">
+      <div class="step"><span class="step-no">1</span><div><h3>Откройте сайт в Chrome</h3><p><a href="https://chesnikova-pass.201-24-48-93.sslip.io/">chesnikova-pass.201-24-48-93.sslip.io</a></p></div></div>
+      <div class="step"><span class="step-no">2</span><div><h3>Откройте меню ⋮</h3><p>Выберите «Добавить на главный экран», затем «Создать ярлык» или «Установить».</p></div></div>
+      <div class="step"><span class="step-no">3</span><div><h3>Подтвердите название</h3><p>Оставьте CHESNIKOVA PASS и нажмите «Добавить».</p></div></div>
+    </div>
+    <div class="rule"></div>
+    <h3>Если что-то не работает</h3>
+    <ul class="checklist">
+      <li>Проверьте интернет и заново откройте сайт.</li>
+      <li>При ошибке входа проверьте те же данные непосредственно в PassOffice.</li>
+      <li>Если микрофон не включается, разрешите доступ к нему в настройках сайта.</li>
+      <li>Если распознавание ошиблось, исправьте текст вручную до отправки.</li>
+      <li>При неопределённом статусе не создавайте дубль — сначала проверьте заявку в PassOffice.</li>
+    </ul>
+    <div class="note"><b>Конфиденциальность</b>Пароль не сохраняется приложением. Голосовая запись отправляется в Яндекс SpeechKit только для распознавания и не сохраняется CHESNIKOVA PASS.</div>
+    <p class="small" style="margin-top:5mm">Официальная справка: <a href="https://support.google.com/chrome/answer/15085120?co=GENIE.Platform%3DAndroid&amp;hl=en-GB_ALL">Google Chrome — создание ярлыка сайта на Android</a>.</p>
+  </section>
+</body>
+</html>

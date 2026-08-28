@@ -3,8 +3,15 @@ import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { ApiError, errorBody } from "./errors.js";
 
-const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8" };
-const PUBLIC_FILES = new Set(["index.html", "styles.css", "app.js", "free-text-parser.js", "voice-recorder.js"]);
+const MIME = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
+  ".png": "image/png",
+};
+const PUBLIC_FILES = new Set(["index.html", "styles.css", "app.js", "free-text-parser.js", "voice-recorder.js", "app.webmanifest", "apple-touch-icon.png"]);
 const AUDIO_CONTENT_TYPES = new Set(["audio/webm", "audio/mp4", "audio/ogg", "audio/mpeg", "application/octet-stream"]);
 const MAX_AUDIO_UPLOAD_BYTES = 4 * 1024 * 1024;
 

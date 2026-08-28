@@ -52,6 +52,19 @@ test("missing static files return 404 without crashing the server", async (t) =>
   assert.equal(health.status, 200);
 });
 
+test("web app manifest and iPhone icon are publicly available", async (t) => {
+  const { store, server, origin } = await setup();
+  t.after(() => { server.close(); store.close(); });
+  const manifest = await fetch(`${origin}/app.webmanifest`);
+  assert.equal(manifest.status, 200);
+  assert.match(manifest.headers.get("content-type"), /^application\/manifest\+json/);
+  assert.equal((await manifest.json()).display, "standalone");
+  const icon = await fetch(`${origin}/apple-touch-icon.png`);
+  assert.equal(icon.status, 200);
+  assert.equal(icon.headers.get("content-type"), "image/png");
+  assert.ok((await icon.arrayBuffer()).byteLength > 0);
+});
+
 test("web login creates only an opaque cookie and supports logout with CSRF", async (t) => {
   const { store, server, origin } = await setup();
   t.after(() => { server.close(); store.close(); });
