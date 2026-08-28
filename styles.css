@@ -11,11 +11,12 @@
   --success: #2f9f6a;
   --safe-top: max(12px, env(safe-area-inset-top));
   --safe-bottom: max(12px, env(safe-area-inset-bottom));
-  --motion-fast: 140ms;
-  --motion-base: 240ms;
-  --motion-view: 360ms;
+  --motion-fast: 170ms;
+  --motion-base: 300ms;
+  --motion-view: 480ms;
   --ease-out: cubic-bezier(.22, 1, .36, 1);
   --ease-standard: cubic-bezier(.2, 0, 0, 1);
+  --ease-spring: cubic-bezier(.16, 1.22, .3, 1);
 }
 
 * { box-sizing: border-box; }
@@ -27,13 +28,61 @@ button, input, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { color: inherit; }
 
-/* One quiet motion language: the next state settles into place, controls answer immediately. */
+/* One deliberate motion language: screens settle, related items follow, controls answer immediately. */
 #app > * {
   animation: view-enter var(--motion-view) var(--ease-out) both;
+  transform-origin: 50% 18%;
 }
-#app > *:nth-child(2) { animation-delay: 24ms; }
-#app > *:nth-child(3) { animation-delay: 42ms; }
-#app > *:nth-child(n + 4) { animation-delay: 58ms; }
+#app > *:nth-child(2) { animation-delay: 42ms; }
+#app > *:nth-child(3) { animation-delay: 72ms; }
+#app > *:nth-child(n + 4) { animation-delay: 96ms; }
+
+.dashboard-head,
+.dashboard-stats,
+.requests-section,
+.new-request-screen > :not(.overline),
+.free-text-screen > :not(.overline),
+.parse-preview-screen > :not(.overline),
+.profile-screen > :not(.overline),
+.result-screen > :not(.overline),
+.wizard-head > :not(.progress),
+.wizard-head ~ * {
+  animation: section-enter var(--motion-view) var(--ease-out) both;
+}
+.dashboard-stats { animation-delay: 70ms; }
+.requests-section { animation-delay: 130ms; }
+.new-request-screen > :nth-child(3),
+.free-text-screen > :nth-child(3),
+.parse-preview-screen > :nth-child(3),
+.profile-screen > :nth-child(3),
+.result-screen > :nth-child(3) { animation-delay: 55ms; }
+.new-request-screen > :nth-child(n + 4),
+.free-text-screen > :nth-child(n + 4),
+.parse-preview-screen > :nth-child(n + 4),
+.profile-screen > :nth-child(n + 4),
+.result-screen > :nth-child(n + 4),
+.wizard-head ~ :nth-child(n + 3) { animation-delay: 100ms; }
+
+.dashboard-stats article,
+.request-row,
+.type-card,
+.visitor-card,
+.review-section {
+  animation: item-enter 390ms var(--ease-out) both;
+}
+.dashboard-stats article:nth-child(2),
+.request-row:nth-child(2),
+.type-card:nth-child(2),
+.visitor-card:nth-child(2),
+.review-section:nth-child(2) { animation-delay: 45ms; }
+.dashboard-stats article:nth-child(3),
+.request-row:nth-child(3),
+.type-card:nth-child(3),
+.visitor-card:nth-child(3),
+.review-section:nth-child(3) { animation-delay: 85ms; }
+.request-row:nth-child(4), .type-card:nth-child(4), .visitor-card:nth-child(4) { animation-delay: 120ms; }
+.request-row:nth-child(5), .type-card:nth-child(5), .visitor-card:nth-child(5) { animation-delay: 150ms; }
+.request-row:nth-child(n + 6), .visitor-card:nth-child(n + 6) { animation-delay: 175ms; }
 
 button,
 a,
@@ -56,6 +105,7 @@ textarea,
 }
 
 button:active:not(:disabled) { transform: translateY(1px) scale(.992); transition-duration: 70ms; }
+button:focus-visible { transform: translateY(-1px); }
 
 .app-shell {
   position: relative;
@@ -155,6 +205,10 @@ button.request-row { cursor: pointer; }
 .workflow-nav button.current span { border-color: var(--accent); color: white; background: var(--accent); }
 .workflow-nav button.completed { color: var(--accent); cursor: pointer; }
 .workflow-nav button.completed span { border-color: var(--accent); }
+.workflow-nav button span,
+.workflow-nav button b { transition: color var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), transform var(--motion-base) var(--ease-spring); }
+.workflow-nav button.current span { transform: scale(1.08); }
+.workflow-nav button.completed:hover span { transform: translateY(-1px) scale(1.04); }
 .workflow-nav button:disabled { cursor: default; }
 
 .segment { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 17px; padding: 3px; border-radius: 11px; background: #e9e9e7; }
@@ -355,8 +409,9 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
   backdrop-filter: blur(18px);
 }
 .tab { display: grid; place-items: center; align-content: center; gap: 4px; height: 48px; border: 0; color: #a0a1a3; background: transparent; font-size: 10px; cursor: pointer; }
-.tab-icon { font-size: 8px; }
+.tab-icon { font-size: 8px; transition: color var(--motion-fast) var(--ease-standard), transform var(--motion-base) var(--ease-spring); }
 .tab.active { color: var(--accent); font-weight: 800; }
+.tab.active .tab-icon { transform: translateY(-2px) scale(1.16); }
 .tab-create { width: 68px; height: 52px; justify-self: center; margin-top: -15px; border-radius: 12px; color: white; background: var(--shell); }
 .tab-create span:first-child { color: var(--accent); font-size: 19px; line-height: .7; }
 .tab-create.active { color: white; box-shadow: 0 0 0 2px var(--accent); }
@@ -366,8 +421,18 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
 :focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 40%, transparent); outline-offset: 2px; }
 
 @keyframes view-enter {
-  from { opacity: 0; transform: translateY(9px); }
+  from { opacity: 0; transform: translate3d(0,18px,0) scale(.992); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes section-enter {
+  from { opacity: 0; transform: translate3d(0,14px,0); }
+  to { opacity: 1; transform: translate3d(0,0,0); }
+}
+
+@keyframes item-enter {
+  from { opacity: 0; transform: translate3d(10px,0,0); }
+  to { opacity: 1; transform: translate3d(0,0,0); }
 }
 
 @keyframes details-enter {
@@ -383,6 +448,9 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
   .filter-chip:hover,
   .tab:hover { border-color: var(--ink); color: var(--ink); }
   button.request-row:hover { background: #fafafa; }
+  .dashboard-stats article:hover,
+  .profile-card:hover,
+  .review-section:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(21,21,21,.055); }
 }
 
 @media (max-width: 380px) {
