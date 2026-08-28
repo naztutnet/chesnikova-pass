@@ -1,4 +1,14 @@
 import { parseFreeTextRequest } from "./free-text-parser.js";
+import {
+  getSpeechRecognitionConstructor,
+  mergeSpeechTranscript,
+  speechRecognitionErrorMessage,
+} from "./speech-recognition.js";
+
+const SpeechRecognitionApi = getSpeechRecognitionConstructor(window);
+let speechRecognition = null;
+let speechBaseText = "";
+let speechStopRequested = false;
 
 function freshVisitor() {
   return {
@@ -56,6 +66,10 @@ const state = {
   lastResult: null,
   submitting: false,
   loginError: "",
+  speechStatus: SpeechRecognitionApi ? "idle" : "unsupported",
+  speechMessage: SpeechRecognitionApi
+    ? "Нажмите кнопку и продиктуйте дату, место и гостей."
+    : "Голосовой ввод не поддерживается этим браузером. Используйте диктовку клавиатуры или введите текст вручную.",
 };
 
 const app = document.querySelector("#app");
@@ -297,6 +311,8 @@ function renderNewRequest() {
 }
 
 function renderFreeText() {
+  const isListening = state.speechStatus === "listening";
+  const speechDisabled = state.speechStatus === "unsupported";
   app.innerHTML = `
     <section class="free-text-screen">
       <p class="overline">Новая заявка · быстрый ввод</p>
@@ -306,11 +322,128 @@ function renderFreeText() {
         <label for="freeText">Текст заявки</label>
         <textarea id="freeText" data-free-text placeholder="Например: 27 августа, БП — 10. Гости: Иванов Иван Иванович, Петрова Анна Сергеевна. Организация: Киносервис.">${escapeHtml(state.freeText)}</textarea>
         <span class="field-error" data-error-for="freeText" role="alert" hidden></span>
+        <div class="speech-input">
+          <button class="speech-button${isListening ? " is-listening" : ""}" type="button" data-action="toggle-speech" aria-pressed="${isListening}" aria-describedby="speechStatus" ${speechDisabled ? "disabled" : ""}>
+            <span class="speech-dot" aria-hidden="true"></span>
+            <span data-speech-label>${isListening ? "Остановить запись" : speechDisabled ? "Голосовой ввод недоступен" : "Продиктовать заявку"}</span>
+          </button>
+          <p id="speechStatus" class="speech-status${state.speechStatus === "error" ? " is-error" : ""}" data-speech-status role="status" aria-live="polite">${escapeHtml(state.speechMessage)}</p>
+          <p class="speech-privacy">Аудио не сохраняется приложением. Распознавание выполняет браузер и может использовать онлайн-сервис.</p>
+        </div>
         <div class="example-copy"><b>Можно короче</b><span>«Завтра, павильон 4. Гости: Воронова Елена Сергеевна»</span></div>
       </div>
       <div class="notice"><i></i><p><b>Сначала только черновик</b><br />Текст разбирается на этом устройстве и ничего не отправляет в PassOffice.</p></div>
       <div class="actions"><button class="button button-primary" type="button" data-action="parse-text">Разобрать текст</button><button class="button button-secondary" type="button" data-action="start-fresh">Заполнить вручную</button></div>
     </section>`;
+}
+
+function updateSpeechUi() {
+  const button = document.querySelector("[data-action='toggle-speech']");
+  const label = document.querySelector("[data-speech-label]");
+  const status = document.querySelector("[data-speech-status]");
+  const isListening = state.speechStatus === "listening";
+  if (button) {
+    button.classList.toggle("is-listening", isListening);
+    button.setAttribute("aria-pressed", String(isListening));
+  }
+  if (label) label.textContent = isListening ? "Остановить запись" : "Продиктовать заявку";
+  if (status) {
+    status.textContent = state.speechMessage;
+    status.classList.toggle("is-error", state.speechStatus === "error");
+  }
+}
+
+function setSpeechState(status, message) {
+  state.speechStatus = status;
+  state.speechMessage = message;
+  updateSpeechUi();
+}
+
+function cancelSpeechRecognition({ silent = true } = {}) {
+  if (speechRecognition) {
+    const currentRecognition = speechRecognition;
+    speechRecognition = null;
+    currentRecognition.onstart = null;
+    currentRecognition.onresult = null;
+    currentRecognition.onerror = null;
+    currentRecognition.onend = null;
+    try { currentRecognition.abort(); } catch {}
+  }
+  speechStopRequested = false;
+  if (state.speechStatus !== "unsupported") {
+    state.speechStatus = "idle";
+    state.speechMessage = silent
+      ? "Нажмите кнопку и продиктуйте дату, место и гостей."
+      : "Запись остановлена. Можно продолжить вручную или включить микрофон снова.";
+    updateSpeechUi();
+  }
+}
+
+function startSpeechRecognition() {
+  if (!SpeechRecognitionApi || speechRecognition) return;
+  const textarea = document.querySelector("[data-free-text]");
+  speechBaseText = textarea?.value || state.freeText;
+  state.freeText = speechBaseText;
+  speechStopRequested = false;
+
+  const recognition = new SpeechRecognitionApi();
+  speechRecognition = recognition;
+  recognition.lang = "ru-RU";
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    setSpeechState("listening", "Слушаю… Говорите дату, место и имена гостей.");
+  };
+  recognition.onresult = (event) => {
+    let finalText = "";
+    let interimText = "";
+    for (let index = 0; index < event.results.length; index += 1) {
+      const transcript = event.results[index][0]?.transcript || "";
+      if (event.results[index].isFinal) finalText += transcript;
+      else interimText += transcript;
+    }
+    const spokenText = `${finalText} ${interimText}`.trim();
+    state.freeText = mergeSpeechTranscript(speechBaseText, spokenText);
+    const currentTextarea = document.querySelector("[data-free-text]");
+    if (currentTextarea) {
+      currentTextarea.value = state.freeText;
+      currentTextarea.scrollTop = currentTextarea.scrollHeight;
+    }
+  };
+  recognition.onerror = (event) => {
+    if (event.error === "aborted" && speechStopRequested) return;
+    setSpeechState("error", speechRecognitionErrorMessage(event.error));
+  };
+  recognition.onend = () => {
+    speechRecognition = null;
+    speechStopRequested = false;
+    if (state.speechStatus === "error") return;
+    if (state.freeText.trim() !== speechBaseText.trim()) {
+      setSpeechState("done", "Текст распознан. Проверьте его перед разбором.");
+      document.querySelector("[data-free-text]")?.focus();
+    } else {
+      setSpeechState("idle", "Запись завершена без текста. Нажмите кнопку, чтобы попробовать снова.");
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch {
+    speechRecognition = null;
+    setSpeechState("error", "Микрофон уже запускается. Подождите секунду и попробуйте снова.");
+  }
+}
+
+function toggleSpeechRecognition() {
+  if (speechRecognition) {
+    speechStopRequested = true;
+    setSpeechState("processing", "Завершаю запись и распознаю текст…");
+    try { speechRecognition.stop(); } catch { cancelSpeechRecognition({ silent: false }); }
+    return;
+  }
+  startSpeechRecognition();
 }
 
 function renderTextPreview() {
@@ -497,6 +630,7 @@ function navigateBack() {
 }
 
 function render() {
+  if (state.screen !== "free-text" && speechRecognition) cancelSpeechRecognition();
   document.body.dataset.screen = state.screen;
   if (state.booting) {
     tabbar.hidden = true;
@@ -540,6 +674,7 @@ document.addEventListener("click", async (event) => {
   const target = event.target.closest("[data-action]");
   const action = target?.dataset.action;
   if (!action) return;
+  if (action === "toggle-speech") return toggleSpeechRecognition();
   if (action === "new") { syncInputs(); state.screen = "new"; return render(); }
   if (action === "resume") return resumeDraft();
   if (action === "free-text") { state.screen = "free-text"; state.parseResult = null; return render(); }
@@ -657,6 +792,7 @@ document.addEventListener("submit", async (event) => {
 document.addEventListener("input", (event) => {
   if (!event.target.matches("input, textarea, select")) return;
   if (event.target.matches("[data-free-text]")) {
+    if (speechRecognition) cancelSpeechRecognition({ silent: false });
     state.freeText = event.target.value;
     const freeTextError = document.querySelector('[data-error-for="freeText"]');
     if (freeTextError) freeTextError.hidden = true;

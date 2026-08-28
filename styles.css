@@ -184,6 +184,32 @@ input:focus, textarea:focus { border-color: var(--accent); background: white; bo
 .free-text-screen, .parse-preview-screen { padding-top: 14px; }
 .free-text-card { display: grid; gap: 8px; margin-top: 18px; padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: white; }
 .free-text-card textarea { min-height: 176px; line-height: 1.5; }
+.speech-input { display: grid; gap: 7px; margin-top: 2px; }
+.speech-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px solid var(--ink);
+  border-radius: 10px;
+  color: var(--ink);
+  background: #ffffff;
+  cursor: pointer;
+}
+.speech-button.is-listening { border-width: 2px; color: var(--ink); background: #ffffff; }
+.speech-button:disabled { border-color: var(--line); color: var(--muted); cursor: default; }
+.speech-dot { width: 9px; height: 9px; border: 1px solid currentColor; border-radius: 50%; background: currentColor; }
+.speech-button.is-listening .speech-dot { animation: speech-pulse 1.25s ease-out infinite; }
+.speech-status, .speech-privacy { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.speech-status.is-error { color: #a3373d; }
+.speech-privacy { font-size: 11px; }
+@keyframes speech-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(21,21,21,.3); }
+  70%, 100% { box-shadow: 0 0 0 8px rgba(21,21,21,0); }
+}
 .example-copy { display: grid; gap: 4px; padding: 10px 11px; border-radius: 9px; color: var(--muted); background: var(--soft); font-size: 10px; line-height: 1.45; }
 .example-copy b { color: var(--ink); font-size: 10px; }
 .parse-card { overflow: hidden; margin-top: 18px; border: 1px solid var(--line); border-radius: 13px; background: white; }
